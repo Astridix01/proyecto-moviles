@@ -1,11 +1,11 @@
-export type Product =  {
-        id: number;
-        nombre: string;
-        descripcion: string;
-        precio:number;
-        categoria: string;
-        material: string;
-        imagenes: string[];  
-    };
-    
+import type { ImageSourcePropType } from 'react-native';
 
+export interface Product {
+  id: number;
+  nombre: string;
+  precio: number;
+  descripcion: string;
+  categoria: string;
+  material: string;
+  imagenes: ImageSourcePropType[]; // antes: string[]
+}
