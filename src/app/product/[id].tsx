@@ -30,7 +30,7 @@ export default function ProductoDetalle () {
         <ImageCarousel imagenes={producto.imagenes} />
 
          <Pressable style= {styles.corazon} onPress={() => toggleFavorito(producto.id)} >
-            <Heart color= {colors.accent} size = {22} fill={esFavorito(producto.id) ? colors.accent : 'transparent'}/>
+            <Heart color= {colors.surface2} size = {22} fill={esFavorito(producto.id) ? colors.surface2 : 'transparent'}/>
             </Pressable>
 
             <Pressable style={styles.atras} onPress={() => router.back()}>
