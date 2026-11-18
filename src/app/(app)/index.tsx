@@ -1,20 +1,23 @@
+import logo from '@/assets/images/joyeria/logo.jpeg';
 import FilterChips from '@/components/FilterChips';
 import Pagination from '@/components/Pagination';
 import ProductCard from "@/components/ProductCard";
 import SearchBar from "@/components/SearchBar";
 import { colors } from "@/constants/colors";
+import { useSettings } from '@/hooks/useSettings';
 import { productos } from "@/mocks/products";
-import { Gem } from 'lucide-react-native';
 import { useState } from "react";
-import { FlatList, StyleSheet, Text, View, Image } from "react-native";
+import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import logo from '@/assets/images/joyeria/logo.jpeg';
 
 export default function Catalogo() {
 
    const [search, setsearch] = useState("");
    const [page, setPage] = useState(1);
-   const [pageSize, setPageSize] = useState(6);
+   
+   /*const [pageSize, setPageSize] = useState(6);*/
+   const { pageSize } = useSettings();
+
    const [categoria, setCategoria] = useState("todos");
    const categorias = ["todos", "Aretes", "Collares", "Pulseras", "Anillos"];
 

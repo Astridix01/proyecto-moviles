@@ -4,45 +4,45 @@ import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 type Props = {
     categorias: string[];
     seleccionada: string;
-    onSelect: (c:string) => void;
+    onSelect: (c: string) => void;
 };
 
-export default function FilterChips({categorias, seleccionada, onSelect}: Props) {
-    return(
+export default function FilterChips({ categorias, seleccionada, onSelect }: Props) {
+    return (
         <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 10 }}
-        style={{ flexGrow: 0 }}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 10 }}
+            style={{ flexGrow: 0 }}
         >
-          {categorias.map((c) => (
-            <Pressable 
-            key={c}
-            onPress={() => onSelect(c)}
-            style={[styles.chip, c === seleccionada && styles.chipActivo]}
-            >
-            <Text style={styles.texto}>{c}</Text>
-            </Pressable>
-        ))}
+            {categorias.map((c) => (
+                <Pressable
+                    key={c}
+                    onPress={() => onSelect(c)}
+                    style={[styles.chip, c === seleccionada && styles.chipActivo]}
+                >
+                    <Text style={styles.texto}>{c}</Text>
+                </Pressable>
+            ))}
         </ScrollView>
     );
 }
 const styles = StyleSheet.create({
-chip: {
-  paddingHorizontal: 14,
-  paddingVertical: 8,
-  borderRadius: 20,
-  marginRight: 8,
-  marginVertical: 8,
-  backgroundColor: colors.surface,
-},
+    chip: {
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 20,
+        marginRight: 8,
+        marginVertical: 8,
+        backgroundColor: colors.surface,
+    },
 
-chipActivo: { 
-  backgroundColor: colors.primaryDark 
-},
+    chipActivo: {
+        backgroundColor: colors.primaryDark
+    },
 
-texto: { 
-  textTransform: 'capitalize',
-  color: colors.text
- },
+    texto: {
+        textTransform: 'capitalize',
+        color: colors.text
+    },
 })

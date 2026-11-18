@@ -7,5 +7,5 @@ export function useSettings() {
     if (!ctx) {
         throw new Error("useSettings debe usarse dentro de SettingsProvider");
     }
-    return ctx;
+    return ctx; 
 }

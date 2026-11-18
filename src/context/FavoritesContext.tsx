@@ -8,20 +8,20 @@ type FavoritesContextType = {
 
 export const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-  
-    const [favoritos, setFavoritos] = useState<number[]>([]);
-    const esFavorito = (id: number) => favoritos.includes(id) ;
-    const toggleFavorito = (id: number) => { 
-        if (favoritos.includes(id)){
-            setFavoritos(favoritos.filter((f) => f !== id)); 
-        } else {
-            setFavoritos([...favoritos, id]);
-        }
-};    
+
+  const [favoritos, setFavoritos] = useState<number[]>([]);
+  const esFavorito = (id: number) => favoritos.includes(id);
+  const toggleFavorito = (id: number) => {
+    if (favoritos.includes(id)) {
+      setFavoritos(favoritos.filter((f) => f !== id));
+    } else {
+      setFavoritos([...favoritos, id]);
+    }
+  };
 
   return (
     <FavoritesContext.Provider value={{ favoritos, toggleFavorito, esFavorito }}>
-    {children}
+      {children}
     </FavoritesContext.Provider>
 
   );
