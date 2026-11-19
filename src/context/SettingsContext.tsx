@@ -1,21 +1,32 @@
-import { createContext, ReactNode, useState } from "react";
+// src/context/SettingsContext.tsx
+import React, { createContext, useState, ReactNode } from 'react';
+import { lightColors, darkColors } from '@/constants/colors';
 
-type SettingsContextType = {
-    pageSize: number;
-    setPageSize: (n: number) => void;
-    theme: "light" | "dark";
-    setTheme: (t: "light" | "dark") => void;
+type Theme = 'light' | 'dark';
+
+type SettingsContextData = {
+  pageSize: number;
+  setPageSize: (n: number) => void;
+  theme: Theme;
+  setTheme: (t: Theme) => void;
+  colors: typeof lightColors; // 👈 colores activos
+  isDark: boolean;
 };
 
-export const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+export const SettingsContext = createContext<SettingsContextData>({} as SettingsContextData);
+
 export function SettingsProvider({ children }: { children: ReactNode }) {
+  const [pageSize, setPageSize] = useState(6);
+  const [theme, setTheme] = useState<Theme>('light');
 
-    const [pageSize, setPageSize] = useState(6);
-    const [theme, setTheme] = useState<"light" | "dark">("light");
+  const isDark = theme === 'dark';
+  const colors = isDark ? darkColors : lightColors;
 
-    return (
-        <SettingsContext.Provider value={{ pageSize, setPageSize, theme, setTheme }}>
-            {children}
-        </SettingsContext.Provider>
-    );
+  return (
+    <SettingsContext.Provider
+      value={{ pageSize, setPageSize, theme, setTheme, colors, isDark }}
+    >
+      {children}
+    </SettingsContext.Provider>
+  );
 }

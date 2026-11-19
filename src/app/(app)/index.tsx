@@ -3,45 +3,55 @@ import FilterChips from '@/components/FilterChips';
 import Pagination from '@/components/Pagination';
 import ProductCard from "@/components/ProductCard";
 import SearchBar from "@/components/SearchBar";
-import { colors } from "@/constants/colors";
+import ToastCarrito from "@/components/ToastCarrito";
 import { useSettings } from '@/hooks/useSettings';
-import { productos } from "@/mocks/products";
-import { useState } from "react";
+import { useProducts } from '@/hooks/useProducts'; // 👈 IMPORTAMOS EL HOOK DE PRODUCTOS
+import { useState, useRef } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import type { Product } from '@/types/product';
 
 export default function Catalogo() {
 
    const [search, setsearch] = useState("");
    const [page, setPage] = useState(1);
    
-   /*const [pageSize, setPageSize] = useState(6);*/
-   const { pageSize } = useSettings();
+   // 👇 Obtenemos pageSize, colores y los productos del contexto
+   const { pageSize, colors } = useSettings();
+   const { products } = useProducts(); // 👈 TRAEMOS LOS PRODUCTOS
+   const styles = createStyles(colors);
 
    const [categoria, setCategoria] = useState("todos");
    const categorias = ["todos", "Aretes", "Collares", "Pulseras", "Anillos"];
 
-   const filtrados = productos.filter((p) =>
+   const [showToast, setShowToast] = useState(false);
+   const [lastAddedName, setLastAddedName] = useState("");
+   const toastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+   const handleProductAdded = (product: Product) => {
+      setLastAddedName(product.nombre);
+      setShowToast(true);
+
+      if (toastTimeout.current) {
+         clearTimeout(toastTimeout.current);
+      }
+
+      toastTimeout.current = setTimeout(() => {
+         setShowToast(false);
+      }, 2500);
+   };
+
+   // 👇 Reemplazamos 'productos' por 'products'
+   const filtrados = products.filter((p) =>
       (categoria === "todos" || p.categoria === categoria) &&
       p.nombre.toLowerCase().includes(search.toLowerCase()));
 
-
    const inicio = (page - 1) * pageSize;
    const visibles = filtrados.slice(inicio, inicio + pageSize);
-   const totalPages = Math.ceil(filtrados.length / pageSize)
+   const totalPages = Math.ceil(filtrados.length / pageSize);
 
    return (
       <SafeAreaView style={styles.container} edges={['top']}>
-         {/* 
-         <View style={styles.barra}>
-            <Pressable style={styles.boton}>
-               <Menu color={colors.accent} size={20} />
-            </Pressable>
-            <Pressable style={styles.boton}>
-               <Settings color={colors.accent} size={20} />
-            </Pressable>
-         </View>*/}
-
          <View style={styles.barra}>
             <View style={styles.logo}>
                <View style={styles.logoIcon}>
@@ -69,45 +79,31 @@ export default function Catalogo() {
             style={{ flex: 1 }}
             contentContainerStyle={{ paddingHorizontal: 10 }}
             keyExtractor={(item) => String(item.id)}
-            renderItem={({ item }) => <ProductCard product={item} />}
+            renderItem={({ item }) => (
+               <ProductCard 
+                  product={item} 
+                  onAdded={() => handleProductAdded(item)}
+               />
+            )}
          />
          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+         
+         <ToastCarrito visible={showToast} productName={lastAddedName} />
       </SafeAreaView>
    );
-
 }
 
-const styles = StyleSheet.create({
+// 👇 Función generadora de estilos
+const createStyles = (colors: any) => StyleSheet.create({
    container: {
       flex: 1,
       backgroundColor: colors.background,
    },
-   /*
-   barra: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',  // uno a cada esquina
-      alignItems: 'center',
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-   },*/
-   /*
-   boton: {
-      width: 40,
-      height: 40,
-      borderRadius: 22,                 // la mitad del ancho = círculo perfecto
-      backgroundColor: colors.surface,
-      justifyContent: 'center',
-      alignItems: 'center',
-   },*/
-
-   
-
-    imagen: {
-        width: '100%',
-        height: '100%',
-        borderRadius: '100%',
-    },
-
+   imagen: {
+      width: '100%',
+      height: '100%',
+      borderRadius: 20, 
+   },
    barra: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -115,13 +111,11 @@ const styles = StyleSheet.create({
       paddingHorizontal: 16,
       paddingVertical: 10,
    },
-
    logo: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
    },
-
    logoIcon: {
       width: 40,
       height: 40,
@@ -129,8 +123,8 @@ const styles = StyleSheet.create({
       backgroundColor: colors.surface,
       justifyContent: 'center',
       alignItems: 'center',
+      overflow: 'hidden', 
    },
-
    logoText: {
       fontSize: 20,
       fontWeight: '700',
@@ -138,5 +132,4 @@ const styles = StyleSheet.create({
       letterSpacing: 1.5,
       textTransform: 'uppercase',
    },
-   
 });

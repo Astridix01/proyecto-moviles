@@ -1,4 +1,5 @@
-import { colors } from "@/constants/colors";
+import { useSettings } from "@/hooks/useSettings"; // 👈 Hook de colores
+import { getImageSource } from "@/utils/images"; // 👈 Helper de imágenes
 import { useState } from "react";
 import {
   FlatList,
@@ -11,11 +12,16 @@ import {
   View,
 } from "react-native";
 
-type Props = { imagenes: ImageSourcePropType[] }; // antes: string[]
+// 👇 Tipo actualizado: acepta imports locales (mock) y URLs (backend)
+type Props = { imagenes: (ImageSourcePropType | string)[] };
 
 export default function ImageCarousel({ imagenes }: Props) {
   const [indice, setIndice] = useState(0);
   const { width } = useWindowDimensions();
+
+  // 👇 Colores dinámicos y estilos
+  const { colors } = useSettings();
+  const styles = createStyles(colors);
 
   const manejarFinScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
@@ -32,7 +38,11 @@ export default function ImageCarousel({ imagenes }: Props) {
         onMomentumScrollEnd={manejarFinScroll}
         keyExtractor={(_, index) => String(index)}
         renderItem={({ item }) => (
-          <Image source={item} style={{ width: width, aspectRatio: 1 }} /> // antes: { uri: item }
+          // 👇 Usamos el helper para soportar mocks y URLs
+          <Image 
+            source={getImageSource(item)} 
+            style={{ width: width, aspectRatio: 1 }} 
+          />
         )}
       />
       {imagenes.length > 1 && (
@@ -49,7 +59,8 @@ export default function ImageCarousel({ imagenes }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+// 👇 Estilos dinámicos según el tema
+const createStyles = (colors: any) => StyleSheet.create({
   puntos: {
     position: "absolute",
     bottom: 12,

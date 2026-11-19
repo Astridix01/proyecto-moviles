@@ -1,3 +1,4 @@
+import { useSettings } from '@/hooks/useSettings';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -8,29 +9,123 @@ type Props = {
 }
 
 export default function Pagination({ page, totalPages, onChange }: Props) {
+    const { colors } = useSettings();
+    const styles = createStyles(colors);
+
+    // Si solo hay una página (o ninguna), no mostramos el paginador
+    if (totalPages <= 1) return null;
+
+    const canGoPrev = page > 1;
+    const canGoNext = page < totalPages;
+
     return (
-        <View style={styles.fila}>
-            <Pressable onPress={() => onChange(page - 1)} disabled={page === 1}>
-                <ChevronLeft size={20} />
+        <View style={styles.container}>
+            
+            {/* Botón Atrás */}
+            <Pressable
+                onPress={() => onChange(page - 1)}
+                disabled={!canGoPrev}
+                style={({ pressed }) => [
+                    styles.button,
+                    !canGoPrev && styles.buttonDisabled,
+                    pressed && canGoPrev && styles.buttonPressed,
+                ]}
+            >
+                <ChevronLeft 
+                    color={canGoPrev ? colors.text : colors.textSecondary} 
+                    size={22} 
+                />
             </Pressable>
-            <Text>Página {page} de {totalPages}</Text>
-            <Pressable onPress={() => onChange(page + 1)} disabled={page === totalPages}>
-                <ChevronRight size={20} />
+
+            {/* Indicador de página */}
+            <View style={styles.pageInfo}>
+                <Text style={styles.pageLabel}>Página</Text>
+                <View style={styles.pageNumbers}>
+                    <Text style={styles.currentPage}>{page}</Text>
+                    <Text style={styles.separator}>/</Text>
+                    <Text style={styles.totalPages}>{totalPages}</Text>
+                </View>
+            </View>
+
+            {/* Botón Siguiente */}
+            <Pressable
+                onPress={() => onChange(page + 1)}
+                disabled={!canGoNext}
+                style={({ pressed }) => [
+                    styles.button,
+                    !canGoNext && styles.buttonDisabled,
+                    pressed && canGoNext && styles.buttonPressed,
+                ]}
+            >
+                <ChevronRight 
+                    color={canGoNext ? colors.text : colors.textSecondary} 
+                    size={22} 
+                />
             </Pressable>
+
         </View>
     );
 }
 
-const styles = StyleSheet.create({
-    fila: {
+const createStyles = (colors: any) => StyleSheet.create({
+    container: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 4,
-        gap: 16,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        gap: 20,
     },
-
-})
-
-
-
+    button: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: colors.surface,
+        justifyContent: 'center',
+        alignItems: 'center',
+        // Sombra sutil para que resalten
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    buttonDisabled: {
+        opacity: 0.4,
+    },
+    buttonPressed: {
+        opacity: 0.7,
+        transform: [{ scale: 0.95 }], // Efecto de "hundido" al presionar
+    },
+    pageInfo: {
+        alignItems: 'center',
+        minWidth: 80,
+    },
+    pageLabel: {
+        fontSize: 11,
+        color: colors.textSecondary,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        fontWeight: '600',
+        marginBottom: 2,
+    },
+    pageNumbers: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 4,
+    },
+    currentPage: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: colors.primaryDark,
+    },
+    separator: {
+        fontSize: 14,
+        color: colors.textSecondary,
+    },
+    totalPages: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.textSecondary,
+    },
+});

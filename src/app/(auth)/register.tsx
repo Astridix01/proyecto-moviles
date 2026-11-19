@@ -17,7 +17,7 @@ import { router } from 'expo-router';
 import { Mail, Lock, Eye, EyeOff, User, AtSign } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import logo from '@/assets/images/joyeria/logo.jpeg'; 
-import { useAuth } from '@/context/AuthContext'; 
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Register() {
   // Estados para los campos del formulario
@@ -69,7 +69,13 @@ export default function Register() {
     setTimeout(() => {
       setIsLoading(false);
       // Como es simulado, usamos el login para que entre directo
-      login(); 
+      login({
+        username: username,
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        role: 'user', // 👈 Todo registro nuevo es un cliente normal
+      });
     }, 1500);
   };
 

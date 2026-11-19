@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import logo from '@/assets/images/joyeria/logo.jpeg'; 
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
 
 
@@ -35,13 +35,21 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      // Aquí conectas con tu backend o contexto:
-      // await login(email, password);
-      
       // Simulación de carga (bórralo cuando conectes tu AuthContext)
       setTimeout(() => {
         setIsLoading(false);
-        login()
+
+        // 👇 Simulamos la respuesta del backend con el rol
+        const isAdmin = email.toLowerCase() === 'admin@yatzari.com';
+
+        login({
+          username: email.split('@')[0], // Toma lo que está antes del @
+          email: email,
+          first_name: isAdmin ? 'Admin' : 'Cliente',
+          last_name: 'Prueba',
+          role: isAdmin ? 'admin' : 'user',
+        });
+
       }, 1500);
       
     } catch (error) {

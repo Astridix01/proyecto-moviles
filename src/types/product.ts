@@ -1,11 +1,12 @@
 import type { ImageSourcePropType } from 'react-native';
 
-export interface Product {
+export type Product = {
   id: number;
   nombre: string;
   precio: number;
   descripcion: string;
   categoria: string;
   material: string;
-  imagenes: ImageSourcePropType[]; // antes: string[]
-}
+  // 👇 Acepta tanto imágenes locales (mock) como URLs (backend)
+  imagenes: (ImageSourcePropType | string)[];
+};
