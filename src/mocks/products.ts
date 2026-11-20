@@ -9,94 +9,94 @@ import imgMonoPuesto from '@/assets/images/joyeria/mono_puesto.jpg';
 import imgMonos from '@/assets/images/joyeria/monos.jpeg';
 import imgPulsera from '@/assets/images/joyeria/pulsera.jpeg';
 
-export const productos: Product[] = [
+export const products: Product[] = [
     {
         id: 1,
-        nombre: 'Aretes de corazon',
-        precio: 80,
-        descripcion: 'Lindos anillos de metal',
-        categoria: 'Aretes',
+        name: 'Aretes de corazon',
+        price: 80,
+        description: 'Lindos anillos de metal',
+        category: 'Aretes',
         material: 'acero inoxidable',
-        imagenes: [
+        images: [
             imgMonoPuesto, 
             imgMonos
         ]
     },
     {
         id: 2,
-        nombre: 'Collar de perlas',
-        precio: 100,
-        descripcion: 'Lindos anillos de metal',
-        categoria: 'Collares',
+        name: 'Collar de perlas',
+        price: 100,
+        description: 'Lindos anillos de metal',
+        category: 'Collares',
         material: 'perlas',
-        imagenes: [
+        images: [
             imgCollar1
         ]
     },
     {
         id: 3,
-        nombre: 'Pulsera de cristal',
-        precio: 50,
-        descripcion: 'Lindos anillos de metal',
-        categoria: 'Pulseras',
+        name: 'Pulsera de cristal',
+        price: 50,
+        description: 'Lindos anillos de metal',
+        category: 'Pulseras',
         material: 'cristales',
-        imagenes: [
+        images: [
             imgPulsera
         ]
     },
     {
         id: 4,
-        nombre: 'Anillo de concha',
-        precio: 90,
-        descripcion: 'Lindos anillos de metal',
-        categoria: 'Anillos',
+        name: 'Anillo de concha',
+        price: 90,
+        description: 'Lindos anillos de metal',
+        category: 'Anillos',
         material: 'acero inoxidable',
-        imagenes: [
+        images: [
             imgAnillos
         ]
     },
     {
         id: 5,
-        nombre: 'Aretes',
-        precio: 80,
-        descripcion: 'Lindos anillos de metal',
-        categoria: 'Aretes',
+        name: 'Aretes',
+        price: 80,
+        description: 'Lindos anillos de metal',
+        category: 'Aretes',
         material: 'acero inoxidable',
-        imagenes: [
+        images: [
             imgMonos
         ]
     },
     {
         id: 6,
-        nombre: 'Collar',
-        precio: 100,
-        descripcion: 'Lindos anillos de metal',
-        categoria: 'Collares',
+        name: 'Collar',
+        price: 100,
+        description: 'Lindos anillos de metal',
+        category: 'Collares',
         material: 'perlas',
-        imagenes: [
+        images: [
             imgCollares,
             imgCollaresDisplay
         ]
     },
     {
         id: 7,
-        nombre: 'Pulsera',
-        precio: 50,
-        descripcion: 'Lindos anillos de metal',
-        categoria: 'Pulseras',
+        name: 'Pulsera',
+        price: 50,
+        description: 'Lindos anillos de metal',
+        category: 'Pulseras',
         material: 'cristales',
-        imagenes: [
+        images: [
             imgPulsera
         ]
     },
     {
         id: 8,
-        nombre: 'Anillo',
-        precio: 90,
-        descripcion: 'Lindos anillos de metal',
-        categoria: 'Anillos',
+        name: 'Anillo',
+        price: 90,
+        description: 'Lindos anillos de metal',
+        category: 'Anillos',
         material: 'acero inoxidable',
-        imagenes: [
+        images: [
             imgAnillos
         ]
     },

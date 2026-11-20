@@ -1,6 +1,6 @@
-import React, { createContext, useState, ReactNode } from 'react';
-import { productos as mockProductos } from '@/mocks/products';
+import { products as mockProductos } from '@/mocks/products';
 import type { Product } from '@/types/product';
+import { createContext, ReactNode, useState } from 'react';
 
 type ProductsContextData = {
   products: Product[];

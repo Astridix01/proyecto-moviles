@@ -1,12 +1,12 @@
 import ImageCarousel from "@/components/ImageCarousel";
 import ToastCarrito from "@/components/ToastCarrito";
+import { useCart } from "@/hooks/useCart";
 import { useFavorites } from "@/hooks/useFavorites";
-import { useCart } from "@/hooks/useCart"; 
-import { useSettings } from "@/hooks/useSettings";
 import { useProducts } from '@/hooks/useProducts'; // 👈 IMPORTAMOS EL HOOK
+import { useSettings } from "@/hooks/useSettings";
 import { formatPrice } from "@/utils/formatPrice";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, Heart, ShoppingBag } from "lucide-react-native"; 
+import { ChevronLeft, Heart, ShoppingBag } from "lucide-react-native";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProductoDetalle () {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { esFavorito, toggleFavorito } = useFavorites();
+  const { isFavorite: esFavorito, toggleFavorite: toggleFavorito } = useFavorites();
   const { addItem } = useCart(); 
   
   // 👇 Obtenemos los productos y los colores dinámicos
@@ -48,7 +48,7 @@ export default function ProductoDetalle () {
         
         {/* Imagen y Botones Flotantes */}
         <View style={styles.imageWrapper}>
-          <ImageCarousel imagenes={producto.imagenes} />
+          <ImageCarousel imagenes={producto.images} />
           
           <Pressable style={styles.corazon} onPress={() => toggleFavorito(producto.id)}>
             <Heart 
@@ -66,12 +66,12 @@ export default function ProductoDetalle () {
         {/* Información del Producto */}
         <View style={styles.info}>
           
-          <Text style={styles.nombre}>{producto.nombre}</Text>
-          <Text style={styles.precio}>{formatPrice(producto.precio)}</Text>
+          <Text style={styles.nombre}>{producto.name}</Text>
+          <Text style={styles.precio}>{formatPrice(producto.price)}</Text>
 
           <View style={styles.tagsContainer}>
             <View style={styles.tag}>
-              <Text style={styles.tagText}>{producto.categoria}</Text>
+              <Text style={styles.tagText}>{producto.category}</Text>
             </View>
             <View style={styles.tag}>
               <Text style={styles.tagText}>{producto.material}</Text>
@@ -81,7 +81,7 @@ export default function ProductoDetalle () {
           <View style={styles.divider} />
 
           <Text style={styles.sectionTitle}>Detalles de la pieza</Text>
-          <Text style={styles.descripcion}>{producto.descripcion}</Text>
+          <Text style={styles.descripcion}>{producto.description}</Text>
         </View>
 
       </ScrollView>
@@ -94,7 +94,7 @@ export default function ProductoDetalle () {
         </Pressable>
       </View>
 
-      <ToastCarrito visible={showToast} productName={producto.nombre} />
+      <ToastCarrito visible={showToast} productName={producto.name} />
     </SafeAreaView>
   );
 }

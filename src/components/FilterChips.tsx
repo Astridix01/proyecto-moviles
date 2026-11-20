@@ -2,12 +2,12 @@ import { colors } from "@/constants/colors";
 import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 
 type Props = {
-    categorias: string[];
-    seleccionada: string;
+    categories: string[];
+    selected: string;
     onSelect: (c: string) => void;
 };
 
-export default function FilterChips({ categorias, seleccionada, onSelect }: Props) {
+export default function FilterChips({ categories: categorias, selected: seleccionada, onSelect }: Props) {
     return (
         <ScrollView
             horizontal

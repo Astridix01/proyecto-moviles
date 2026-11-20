@@ -41,13 +41,13 @@ export default function CartScreen() {
         renderItem={({ item }) => (
           <View style={styles.cartItem}>
             <Image 
-              source={getImageSource(item.product.imagenes[0])} 
+              source={getImageSource(item.product.images[0])} 
               style={styles.itemImage} 
             />
 
             <View style={styles.itemDetails}>
-              <Text style={styles.itemName} numberOfLines={1}>{item.product.nombre}</Text>
-              <Text style={styles.itemPrice}>{formatPrice(item.product.precio)}</Text>
+              <Text style={styles.itemName} numberOfLines={1}>{item.product.name}</Text>
+              <Text style={styles.itemPrice}>{formatPrice(item.product.price)}</Text>
               
               <View style={styles.quantityContainer}>
                 <TouchableOpacity 

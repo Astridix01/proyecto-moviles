@@ -1,11 +1,11 @@
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import logo from '@/assets/images/joyeria/logo.jpeg';
 import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
-import { useRouter } from 'expo-router';
 import { getImageSource } from '@/utils/images'; // 👈 NUEVO IMPORT
-import { Plus, Edit2, Trash2 } from 'lucide-react-native';
-import logo from '@/assets/images/joyeria/logo.jpeg';
+import { useRouter } from 'expo-router';
+import { Edit2, Plus, Trash2 } from 'lucide-react-native';
+import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AdminDashboard() {
   const { products, deleteProduct } = useProducts();
@@ -17,10 +17,10 @@ export default function AdminDashboard() {
     <SafeAreaView style={styles.container} edges={['top']}>
       
       {/* Barra del logo */}
-      <View style={styles.barra}>
+      <View style={styles.toolBar}>
         <View style={styles.logo}>
           <View style={styles.logoIcon}>
-            <Image source={logo} style={styles.imagen} resizeMode="cover" />
+            <Image source={logo} style={styles.image} resizeMode="cover" />
           </View>
           <Text style={styles.logoText}>Yatzari</Text>
         </View>
@@ -43,12 +43,12 @@ export default function AdminDashboard() {
             <View style={styles.itemCard}>
               {/* 👇 Usamos getImageSource para soportar mocks y URLs */}
               <Image 
-                source={getImageSource(item.imagenes[0])} 
+                source={getImageSource(item.images[0])} 
                 style={styles.itemImage} 
               />
               <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{item.nombre}</Text>
-                <Text style={styles.itemPrice}>${item.precio}</Text>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <Text style={styles.itemPrice}>${item.price}</Text>
               </View>
               
               <TouchableOpacity onPress={() => router.push(`/admin/edit/${item.id}`)} style={styles.actionIcon}>
@@ -72,7 +72,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  barra: {
+  toolBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -93,7 +93,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden', 
   },
-  imagen: {
+  image: {
     width: '100%',
     height: '100%',
   },

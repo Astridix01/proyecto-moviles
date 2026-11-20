@@ -4,12 +4,12 @@ import Pagination from '@/components/Pagination';
 import ProductCard from "@/components/ProductCard";
 import SearchBar from "@/components/SearchBar";
 import ToastCarrito from "@/components/ToastCarrito";
-import { useSettings } from '@/hooks/useSettings';
 import { useProducts } from '@/hooks/useProducts'; // 👈 IMPORTAMOS EL HOOK DE PRODUCTOS
-import { useState, useRef } from "react";
+import { useSettings } from '@/hooks/useSettings';
+import type { Product } from '@/types/product';
+import { useRef, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import type { Product } from '@/types/product';
 
 export default function Catalogo() {
 
@@ -29,7 +29,7 @@ export default function Catalogo() {
    const toastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
    const handleProductAdded = (product: Product) => {
-      setLastAddedName(product.nombre);
+      setLastAddedName(product.name);
       setShowToast(true);
 
       if (toastTimeout.current) {
@@ -43,8 +43,8 @@ export default function Catalogo() {
 
    // 👇 Reemplazamos 'productos' por 'products'
    const filtrados = products.filter((p) =>
-      (categoria === "todos" || p.categoria === categoria) &&
-      p.nombre.toLowerCase().includes(search.toLowerCase()));
+      (categoria === "todos" || p.category === categoria) &&
+      p.name.toLowerCase().includes(search.toLowerCase()));
 
    const inicio = (page - 1) * pageSize;
    const visibles = filtrados.slice(inicio, inicio + pageSize);
@@ -52,10 +52,10 @@ export default function Catalogo() {
 
    return (
       <SafeAreaView style={styles.container} edges={['top']}>
-         <View style={styles.barra}>
+         <View style={styles.bar}>
             <View style={styles.logo}>
                <View style={styles.logoIcon}>
-                  <Image source={logo} style={styles.imagen} resizeMode="cover" />
+                  <Image source={logo} style={styles.image} resizeMode="cover" />
                </View>
                <Text style={styles.logoText}>Yatzari</Text>
             </View>
@@ -68,8 +68,8 @@ export default function Catalogo() {
             }}
          />
          <FilterChips
-            categorias={categorias}
-            seleccionada={categoria}
+            categories={categorias}
+            selected={categoria}
             onSelect={(c) => { setCategoria(c); setPage(1); }}
          />
 
@@ -99,12 +99,12 @@ const createStyles = (colors: any) => StyleSheet.create({
       flex: 1,
       backgroundColor: colors.background,
    },
-   imagen: {
+   image: {
       width: '100%',
       height: '100%',
       borderRadius: 20, 
    },
-   barra: {
+   bar: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'flex-start',

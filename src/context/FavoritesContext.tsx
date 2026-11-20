@@ -1,9 +1,9 @@
 import { createContext, ReactNode, useState } from "react";
 
 type FavoritesContextType = {
-  favoritos: number[];
-  toggleFavorito: (id: number) => void;
-  esFavorito: (id: number) => boolean;
+  favorites: number[];
+  toggleFavorite: (id: number) => void;
+  isFavorite: (id: number) => boolean;
 };
 
 export const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
@@ -20,7 +20,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <FavoritesContext.Provider value={{ favoritos, toggleFavorito, esFavorito }}>
+    <FavoritesContext.Provider value={{ favorites: favoritos, toggleFavorite: toggleFavorito, isFavorite: esFavorito }}>
       {children}
     </FavoritesContext.Provider>
 

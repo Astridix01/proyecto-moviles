@@ -1,12 +1,12 @@
+import { useCart } from '@/hooks/useCart';
 import { useFavorites } from "@/hooks/useFavorites";
 import { useSettings } from "@/hooks/useSettings";
-import { useCart } from '@/hooks/useCart';
 import type { Product } from '@/types/product';
 import { formatPrice } from "@/utils/formatPrice";
 import { getImageSource } from '@/utils/images'; // 👈 NUEVO IMPORT
 import { useRouter } from 'expo-router';
 import { Heart, Plus } from 'lucide-react-native';
-import { Image, Pressable, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type Props = { 
     product: Product; 
@@ -15,7 +15,7 @@ type Props = {
 
 export default function ProductCard({ product, onAdded }: Props) {
     const router = useRouter();
-    const { esFavorito, toggleFavorito } = useFavorites();
+    const { isFavorite: esFavorito, toggleFavorite: toggleFavorito } = useFavorites();
     const { addItem } = useCart();
     
     const { colors } = useSettings();
@@ -35,7 +35,7 @@ export default function ProductCard({ product, onAdded }: Props) {
                 <View style={styles.imagenWrapper}>
                     {/* 👇 Usamos getImageSource para soportar mocks y URLs */}
                     <Image 
-                        source={getImageSource(product.imagenes[0])} 
+                        source={getImageSource(product.images[0])} 
                         style={styles.imagen} 
                         resizeMode="cover" 
                     />
@@ -49,11 +49,11 @@ export default function ProductCard({ product, onAdded }: Props) {
                 </View>
 
                 <View style={styles.textos}>
-                    <Text style={styles.nombre} numberOfLines={1}>{product.nombre}</Text>
-                    <Text style={styles.descripcion} numberOfLines={2}>{product.descripcion}</Text>
+                    <Text style={styles.nombre} numberOfLines={1}>{product.name}</Text>
+                    <Text style={styles.descripcion} numberOfLines={2}>{product.description}</Text>
                     
                     <View style={styles.precioRow}>
-                        <Text style={styles.precio}>{formatPrice(product.precio)}</Text>
+                        <Text style={styles.precio}>{formatPrice(product.price)}</Text>
                         
                         <TouchableOpacity style={styles.btnAgregar} onPress={handleAddToCart}>
                             <Plus color={colors.white} size={18} />

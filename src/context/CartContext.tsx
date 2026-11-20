@@ -1,5 +1,5 @@
-import React, { createContext, useState, ReactNode, useMemo } from 'react';
 import { Product } from '@/types/product';
+import { createContext, ReactNode, useMemo, useState } from 'react';
 
 export type CartItem = {
   product: Product;
@@ -58,7 +58,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const totalPrice = useMemo(() => {
     return items.reduce((sum, item) => {
       // Ojo: ajusta esto si tu Product usa 'price' en vez de 'precio'
-      const price = Number(item.product.precio) || 0;
+      const price = Number(item.product.price) || 0;
       return sum + price * item.quantity;
     }, 0);
   }, [items]);

@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import { useSettings } from '@/hooks/useSettings';
 import type { Product } from '@/types/product';
-import { Camera } from 'lucide-react-native';
+import { useState } from 'react';
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 // Importamos algunas imágenes locales para usarlas como "opciones" en el CRUD
 import img1 from '@/assets/images/joyeria/anillos.jpeg';
 import img2 from '@/assets/images/joyeria/collar1.jpeg';
-import img3 from '@/assets/images/joyeria/pulsera.jpeg';
 import img4 from '@/assets/images/joyeria/monos.jpeg';
+import img3 from '@/assets/images/joyeria/pulsera.jpeg';
 
 const AVAILABLE_IMAGES = [img1, img2, img3, img4];
 const CATEGORIAS = ["Aretes", "Collares", "Pulseras", "Anillos"];
@@ -23,15 +22,15 @@ export default function ProductForm({ initialValues, onSubmit, buttonText }: Pro
   const { colors } = useSettings();
   const styles = createStyles(colors);
 
-  const [nombre, setNombre] = useState(initialValues?.nombre || '');
-  const [precio, setPrecio] = useState(initialValues?.precio?.toString() || '');
-  const [descripcion, setDescripcion] = useState(initialValues?.descripcion || '');
-  const [categoria, setCategoria] = useState(initialValues?.categoria || 'Aretes');
+  const [nombre, setNombre] = useState(initialValues?.name || '');
+  const [precio, setPrecio] = useState(initialValues?.price?.toString() || '');
+  const [descripcion, setDescripcion] = useState(initialValues?.description || '');
+  const [categoria, setCategoria] = useState(initialValues?.category || 'Aretes');
   const [material, setMaterial] = useState(initialValues?.material || '');
   
   // Estado para la imagen seleccionada (por defecto la primera)
   const [selectedImage, setSelectedImage] = useState<any>(
-    initialValues?.imagenes ? initialValues.imagenes[0] : AVAILABLE_IMAGES[0]
+    initialValues?.images ? initialValues.images[0] : AVAILABLE_IMAGES[0]
   );
 
   const handleSave = () => {
@@ -47,12 +46,12 @@ export default function ProductForm({ initialValues, onSubmit, buttonText }: Pro
     }
 
     onSubmit({
-      nombre,
-      precio: precioNum,
-      descripcion,
-      categoria,
+      name: nombre,
+      price: precioNum,
+      description: descripcion,
+      category: categoria,
       material,
-      imagenes: [selectedImage], // Guardamos el array de imágenes
+      images: [selectedImage], // Guardamos el array de imágenes
     });
   };
 

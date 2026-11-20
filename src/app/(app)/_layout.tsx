@@ -3,13 +3,13 @@ import { useCart } from "@/hooks/useCart";
 import { useFavorites } from "@/hooks/useFavorites"; // 👈 NUEVO
 import { useSettings } from "@/hooks/useSettings";
 import { Tabs } from "expo-router";
-import { Heart, Home, Settings, ShoppingBag, User, Box } from "lucide-react-native";
+import { Heart, Home, ShoppingBag, User } from "lucide-react-native";
 
 export default function AppLayout() {
   const { colors } = useSettings();
   const { user } = useAuth();
   const { totalItems } = useCart();
-  const { favoritos } = useFavorites(); // 👈 Obtenemos los favoritos
+  const { favorites: favoritos } = useFavorites(); // 👈 Obtenemos los favoritos
 
   return (
     <Tabs
