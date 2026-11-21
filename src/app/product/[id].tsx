@@ -2,7 +2,7 @@ import ImageCarousel from "@/components/ImageCarousel";
 import ToastCarrito from "@/components/ToastCarrito";
 import { useCart } from "@/hooks/useCart";
 import { useFavorites } from "@/hooks/useFavorites";
-import { useProducts } from '@/hooks/useProducts'; // 👈 IMPORTAMOS EL HOOK
+import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from "@/hooks/useSettings";
 import { formatPrice } from "@/utils/formatPrice";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -11,33 +11,30 @@ import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function ProductoDetalle () {
+export default function productDetail () {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { isFavorite: esFavorito, toggleFavorite: toggleFavorito } = useFavorites();
+  const { isFavorite: isFavorite, toggleFavorite: toggleFavorite } = useFavorites();
   const { addItem } = useCart(); 
   
-  // 👇 Obtenemos los productos y los colores dinámicos
   const { products } = useProducts(); 
   const { colors } = useSettings();
   const styles = createStyles(colors);
 
   const [showToast, setShowToast] = useState(false);
 
-  // 👇 Buscamos en 'products' en lugar de 'productos'
-  const producto = products.find((p) => p.id === Number(id));
+  const product = products.find((p) => p.id === Number(id));
 
-  // Si el producto fue eliminado desde el admin, o la ruta es inválida
-  if (!producto) {
+  if (!product) {
     return (
       <View style={styles.notFoundContainer}>
-        <Text style={styles.notFoundText}>Producto no encontrado</Text>
+        <Text style={styles.notFoundText}>product no encontrado</Text>
       </View>
     );
   }
 
   const handleAgregar = () => {
-    addItem(producto);
+    addItem(product);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2500);
   };
@@ -46,60 +43,56 @@ export default function ProductoDetalle () {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}> 
         
-        {/* Imagen y Botones Flotantes */}
         <View style={styles.imageWrapper}>
-          <ImageCarousel imagenes={producto.images} />
+          <ImageCarousel imagenes={product.images} />
           
-          <Pressable style={styles.corazon} onPress={() => toggleFavorito(producto.id)}>
+          <Pressable style={styles.hearth} onPress={() => toggleFavorite(product.id)}>
             <Heart 
               color={colors.surface2} 
               size={22} 
-              fill={esFavorito(producto.id) ? colors.surface2 : 'transparent'}
+              fill={isFavorite(product.id) ? colors.surface2 : 'transparent'}
             />
           </Pressable>
 
-          <Pressable style={styles.atras} onPress={() => router.back()}>
+          <Pressable style={styles.behind} onPress={() => router.back()}>
             <ChevronLeft color={colors.text} size={22}/>
           </Pressable>
         </View>
 
-        {/* Información del Producto */}
         <View style={styles.info}>
           
-          <Text style={styles.nombre}>{producto.name}</Text>
-          <Text style={styles.precio}>{formatPrice(producto.price)}</Text>
+          <Text style={styles.name}>{product.name}</Text>
+          <Text style={styles.price}>{formatPrice(product.price)}</Text>
 
           <View style={styles.tagsContainer}>
             <View style={styles.tag}>
-              <Text style={styles.tagText}>{producto.category}</Text>
+              <Text style={styles.tagText}>{product.category}</Text>
             </View>
             <View style={styles.tag}>
-              <Text style={styles.tagText}>{producto.material}</Text>
+              <Text style={styles.tagText}>{product.material}</Text>
             </View>
           </View>
 
           <View style={styles.divider} />
 
           <Text style={styles.sectionTitle}>Detalles de la pieza</Text>
-          <Text style={styles.descripcion}>{producto.description}</Text>
+          <Text style={styles.description}>{product.description}</Text>
         </View>
 
       </ScrollView>
 
-      {/* Footer fijo con botón de compra */}
       <View style={styles.footer}>
-        <Pressable style={styles.botonAgregar} onPress={handleAgregar}>
+        <Pressable style={styles.addButton} onPress={handleAgregar}>
           <ShoppingBag color={colors.white} size={20} />
-          <Text style={styles.botonTexto}>Agregar al carrito</Text>
+          <Text style={styles.textButton}>Agregar al carrito</Text>
         </Pressable>
       </View>
 
-      <ToastCarrito visible={showToast} productName={producto.name} />
+      <ToastCarrito visible={showToast} productName={product.name} />
     </SafeAreaView>
   );
 }
 
-// 👇 Generador de estilos dinámicos (se mantiene igual)
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
@@ -121,7 +114,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   imageWrapper: {
     position: 'relative',
   },
-  corazon: {
+  hearth: {
     position: 'absolute',
     top: 20,
     right: 15,
@@ -134,7 +127,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  atras: {
+  behind: {
     position: 'absolute',
     top: 20,
     left: 15,
@@ -150,13 +143,13 @@ const createStyles = (colors: any) => StyleSheet.create({
   info: {
     padding: 20,
   },
-  nombre: {
+  name: {
     fontSize: 26,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 8,
   },
-  precio: {
+  price: {
     fontSize: 24,
     fontWeight: '700',
     color: colors.primaryDark,
@@ -191,7 +184,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     color: colors.text,
     marginBottom: 8,
   },
-  descripcion: {
+  description: {
     fontSize: 15,
     color: colors.textSecondary,
     lineHeight: 22,
@@ -208,7 +201,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.surface,
   },
-  botonAgregar: {
+  addButton: {
     backgroundColor: colors.primaryDark,
     flexDirection: 'row',
     alignItems: 'center',
@@ -222,7 +215,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
-  botonTexto: {
+  textButton: {
     color: colors.white,
     fontSize: 16,
     fontWeight: 'bold',
