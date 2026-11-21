@@ -14,7 +14,7 @@ export default function NewProduct() {
 
   const handleSubmit = (productData: any) => {
     addProduct(productData);
-    router.back(); // Volver al inventario después de guardar
+    router.back();
   };
 
   return (

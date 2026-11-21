@@ -22,22 +22,18 @@ export default function CartScreen() {
   const { colors } = useSettings();
   const styles = createStyles(colors);
 
-  // --- ESTADOS DEL CHECKOUT ---
   const [showCheckout, setShowCheckout] = useState(false);
   const [step, setStep] = useState<CheckoutStep>('confirm');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [orderNumber, setOrderNumber] = useState('');
 
-  // Animación del check al finalizar
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
-  // Cálculos simulados de envío
-  const ENVIO_GRATIS_DESDE = 500;
-  const COSTO_ENVIO = 50;
-  const envio = totalPrice >= ENVIO_GRATIS_DESDE ? 0 : COSTO_ENVIO;
-  const totalFinal = totalPrice + envio;
+  const FREE_SHIPPING = 500;
+  const SHIPPING_COST = 50;
+  const shipping = totalPrice >= FREE_SHIPPING ? 0 : SHIPPING_COST;
+  const totalFinal = totalPrice + shipping;
 
-  // --- HANDLERS DEL CHECKOUT ---
   const openCheckout = () => {
     setStep('confirm');
     setPaymentMethod('card');
@@ -47,15 +43,12 @@ export default function CartScreen() {
   const handleConfirmPayment = () => {
     setStep('processing');
 
-    // Generamos un número de orden ficticio
     const year = new Date().getFullYear();
     const random = Math.floor(1000 + Math.random() * 9000);
     setOrderNumber(`ORD-${year}-${random}`);
 
-    // Simulamos la llamada al backend (1.8s)
     setTimeout(() => {
       setStep('success');
-      // Animación de check tipo rebote
       Animated.spring(scaleAnim, {
         toValue: 1,
         friction: 4,
@@ -67,20 +60,17 @@ export default function CartScreen() {
 
   const handleCloseCheckout = () => {
     if (step === 'success') {
-      // Compra completada: vaciar carrito y volver al catálogo
       clearCart();
       setShowCheckout(false);
       setStep('confirm');
       scaleAnim.setValue(0);
       router.push('/');
     } else {
-      // Cancelar sin comprar
       setShowCheckout(false);
       setStep('confirm');
     }
   };
 
-  // --- ESTADO VACÍO ---
   if (items.length === 0) {
     return (
       <SafeAreaView style={styles.emptyContainer}>
@@ -137,7 +127,6 @@ export default function CartScreen() {
         )}
       />
 
-      {/* Footer con Total */}
       <View style={styles.footer}>
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total:</Text>
@@ -148,7 +137,6 @@ export default function CartScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* ===================== MODAL DE CHECKOUT ===================== */}
       <Modal
         visible={showCheckout}
         animationType="slide"
@@ -156,7 +144,6 @@ export default function CartScreen() {
       >
         <SafeAreaView style={styles.modalContainer} edges={['top', 'bottom']}>
 
-          {/* Header del modal */}
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>
               {step === 'confirm' && 'Confirmar compra'}
@@ -170,12 +157,10 @@ export default function CartScreen() {
             )}
           </View>
 
-          {/* PASO 1: CONFIRMAR */}
           {step === 'confirm' && (
             <>
               <ScrollView contentContainerStyle={styles.modalContent}>
 
-                {/* Resumen del pedido */}
                 <Text style={styles.sectionLabel}>Resumen del pedido</Text>
                 <View style={styles.summaryCard}>
                   <View style={styles.summaryRow}>
@@ -187,7 +172,7 @@ export default function CartScreen() {
                   <View style={styles.summaryRow}>
                     <Text style={styles.summaryLabel}>Envío</Text>
                     <Text style={styles.summaryValue}>
-                      {envio === 0 ? 'Gratis' : formatPrice(envio)}
+                      {shipping === 0 ? 'Gratis' : formatPrice(shipping)}
                     </Text>
                   </View>
                   <View style={styles.summaryDivider} />
@@ -197,7 +182,6 @@ export default function CartScreen() {
                   </View>
                 </View>
 
-                {/* Entrega estimada */}
                 <View style={styles.deliveryCard}>
                   <Package color={colors.sageDark} size={22} />
                   <View style={{ flex: 1 }}>
@@ -206,7 +190,6 @@ export default function CartScreen() {
                   </View>
                 </View>
 
-                {/* Método de pago */}
                 <Text style={styles.sectionLabel}>Método de pago</Text>
 
                 <TouchableOpacity
@@ -249,14 +232,12 @@ export default function CartScreen() {
                   </View>
                 </TouchableOpacity>
 
-                {/* Nota de seguridad */}
                 <View style={styles.secureNote}>
                   <ShieldCheck color={colors.sageDark} size={16} />
                   <Text style={styles.secureText}>Compra protegida · Devolución gratis 30 días</Text>
                 </View>
               </ScrollView>
-
-              {/* Footer del paso 1 */}
+              
               <View style={styles.modalFooter}>
                 <View style={styles.modalTotalRow}>
                   <Text style={styles.modalTotalLabel}>Total a pagar</Text>
@@ -269,7 +250,6 @@ export default function CartScreen() {
             </>
           )}
 
-          {/* PASO 2: PROCESANDO */}
           {step === 'processing' && (
             <View style={styles.centered}>
               <ActivityIndicator size="large" color={colors.primaryDark} />
@@ -278,7 +258,6 @@ export default function CartScreen() {
             </View>
           )}
 
-          {/* PASO 3: ÉXITO */}
           {step === 'success' && (
             <>
               <View style={styles.centered}>
@@ -319,7 +298,6 @@ export default function CartScreen() {
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  // ========== PANTALLA CARRITO ==========
   container: { flex: 1, backgroundColor: colors.background },
   header: {
     paddingHorizontal: 20,
@@ -372,7 +350,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   checkoutButtonText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
 
-  // Empty
   emptyContainer: {
     flex: 1, backgroundColor: colors.background,
     justifyContent: 'center', alignItems: 'center', padding: 24,
@@ -385,7 +362,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   primaryButtonText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
 
-  // ========== MODAL CHECKOUT ==========
   modalContainer: {
     flex: 1,
     backgroundColor: colors.background,
@@ -422,8 +398,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginBottom: 10,
     marginTop: 4,
   },
-
-  // Resumen
+  
   summaryCard: {
     backgroundColor: colors.surface,
     borderRadius: 14,
@@ -445,7 +420,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   summaryTotalLabel: { fontSize: 16, fontWeight: 'bold', color: colors.text },
   summaryTotalValue: { fontSize: 18, fontWeight: 'bold', color: colors.primaryDark },
 
-  // Entrega
   deliveryCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -458,7 +432,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   deliveryTitle: { fontSize: 13, fontWeight: '600', color: colors.sageDark },
   deliveryText: { fontSize: 14, color: colors.text, marginTop: 2 },
 
-  // Métodos de pago
   paymentOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -489,7 +462,6 @@ const createStyles = (colors: any) => StyleSheet.create({
     backgroundColor: colors.primaryDark,
   },
 
-  // Nota de seguridad
   secureNote: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -499,7 +471,6 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   secureText: { fontSize: 12, color: colors.textSecondary },
 
-  // Footer del modal
   modalFooter: {
     padding: 20,
     paddingBottom: 30,
@@ -523,8 +494,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     alignItems: 'center',
   },
   confirmBtnText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
-
-  // Estados centrales (procesando / éxito)
+  
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -543,7 +513,6 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 6,
   },
 
-  // Éxito
   successCircle: {
     width: 100, height: 100, borderRadius: 50,
     backgroundColor: colors.sageDark,

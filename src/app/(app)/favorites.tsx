@@ -3,7 +3,7 @@ import ProductCard from "@/components/ProductCard";
 import ToastCarrito from "@/components/ToastCarrito";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useSettings } from "@/hooks/useSettings";
-import { useProducts } from '@/hooks/useProducts'; // 👈 IMPORTAMOS EL HOOK
+import { useProducts } from '@/hooks/useProducts';
 import type { Product } from '@/types/product';
 import { Heart } from "lucide-react-native";
 import { useRef, useState } from "react";
@@ -13,10 +13,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function Favoritos() {
   const { favorites } = useFavorites();
   const { colors } = useSettings();
-  const { products } = useProducts(); // 👈 TRAEMOS LOS PRODUCTOS DEL CONTEXTO
+  const { products } = useProducts();
   const styles = createStyles(colors);
 
-  // --- ESTADOS PARA EL TOAST ---
   const [showToast, setShowToast] = useState(false);
   const [lastAddedName, setLastAddedName] = useState("");
   const toastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -34,24 +33,23 @@ export default function Favoritos() {
     }, 2500);
   };
 
-  // 👇 Usamos 'products' en lugar de 'productos'
-  const productosFavoritos = products.filter((p) =>
+  const favoriteProducts = products.filter((p) =>
     favorites.includes(p.id)
   );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.barra}>
+      <View style={styles.bar}>
         <View style={styles.logo}>
           <View style={styles.logoIcon}>
-            <Image source={logo} style={styles.imagen} resizeMode="cover" />
+            <Image source={logo} style={styles.image} resizeMode="cover" />
           </View>
           <Text style={styles.logoText}>Yatzari</Text>
         </View>
       </View>
 
       <FlatList
-        data={productosFavoritos}
+        data={favoriteProducts}
         numColumns={2}
         contentContainerStyle={{ paddingHorizontal: 10, flexGrow: 1 }}
         keyExtractor={(item) => String(item.id)}
@@ -62,12 +60,12 @@ export default function Favoritos() {
           />
         )}
         ListEmptyComponent={
-          <View style={styles.vacio}>
+          <View style={styles.empty}>
             <Heart color={colors.surface2} size={35} />
             <Text style={{ color: colors.text, marginTop: 8 }}>
               Aún no tienes favoritos
             </Text>
-            <Text style={styles.vacioTexto}>
+            <Text style={styles.emptyText}>
               Toca el corazón en un producto para guardarlo aquí
             </Text>
           </View>
@@ -84,23 +82,23 @@ const createStyles = (colors: any) => StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  imagen: {
+  image: {
     width: '100%',
     height: '100%',
     borderRadius: 20, 
   },
-  vacio: {
+  empty: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
-  vacioTexto: {
+  emptyText: {
     fontSize: 14,
     color: colors.textSecondary,
     textAlign: 'center',
   },
-  barra: {
+  bar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',

@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
-import { useFavorites } from "@/hooks/useFavorites"; // 👈 NUEVO
+import { useFavorites } from "@/hooks/useFavorites";
 import { useSettings } from "@/hooks/useSettings";
 import { Tabs } from "expo-router";
 import { Heart, Home, ShoppingBag, User } from "lucide-react-native";
@@ -9,7 +9,7 @@ export default function AppLayout() {
   const { colors } = useSettings();
   const { user } = useAuth();
   const { totalItems } = useCart();
-  const { favorites: favoritos } = useFavorites(); // 👈 Obtenemos los favoritos
+  const { favorites: fav } = useFavorites();
 
   return (
     <Tabs
@@ -38,7 +38,7 @@ export default function AppLayout() {
           tabBarIcon: ({ color }) => <ShoppingBag color={color} size={24} />,
           tabBarBadge: totalItems > 0 ? totalItems : undefined,
           tabBarBadgeStyle: {
-            backgroundColor: colors.accent, // Dorado
+            backgroundColor: colors.accent,
             color: colors.white,
             fontSize: 11,
             fontWeight: 'bold',
@@ -53,10 +53,9 @@ export default function AppLayout() {
         options={{
           title: 'Favoritos',
           tabBarIcon: ({ color, size }) => <Heart color={color} size={size} />,
-          // 👇 Badge con el total de favoritos
-          tabBarBadge: favoritos.length > 0 ? favoritos.length : undefined,
+          tabBarBadge: fav.length > 0 ? fav.length : undefined,
           tabBarBadgeStyle: {
-            backgroundColor: colors.surface2, // Coral (mismo color del corazón)
+            backgroundColor: colors.surface2,
             color: colors.white,
             fontSize: 11,
             fontWeight: 'bold',
@@ -79,7 +78,7 @@ export default function AppLayout() {
           name="admin"
           options={{
             title: 'Admin',
-            tabBarItemStyle: { display: 'none' }, // oculta el botón, pero la ruta sigue existiendo
+            tabBarItemStyle: { display: 'none' },
           }}
         />
       )}
@@ -88,7 +87,7 @@ export default function AppLayout() {
         name="settings"
         options={{
           title: 'Ajustes',
-          tabBarItemStyle: { display: 'none' }, // oculta el botón, pero la ruta sigue existiendo
+          tabBarItemStyle: { display: 'none' },
         }}
       />
     </Tabs>

@@ -68,7 +68,6 @@ export default function Profile() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
-        {/* Header con Avatar */}
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
             <Image source={logo} style={styles.avatar} resizeMode="cover" />
@@ -79,7 +78,6 @@ export default function Profile() {
           <Text style={styles.username}>@{user.username}</Text>
         </View>
 
-        {/* Tarjeta de Información */}
         <View style={styles.infoCard}>
           
           <View style={styles.infoHeader}>
@@ -144,7 +142,6 @@ export default function Profile() {
               </View>
             </>
           ) : (
-            /* 👇 MODO LECTURA (el que ya tenías) */
             <>
               <View style={styles.infoRow}>
                 <User color={colors.primaryDark} size={20} />
@@ -276,7 +273,6 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginBottom: 24,
   },
   
-  // 👇 Header de la tarjeta con botón de editar
   infoHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -323,7 +319,6 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginVertical: 16,
   },
 
-  // 👇 Estilos del modo edición
   inputLabel: {
     fontSize: 12,
     fontWeight: '600',

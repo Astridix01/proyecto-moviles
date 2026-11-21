@@ -16,14 +16,13 @@ export default function Settings() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Barra superior con botón de atrás (ahora que no es tab) */}
-      <View style={styles.barra}>
+      <View style={styles.bar}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <ChevronLeft color={colors.text} size={24} />
         </Pressable>
         <View style={styles.logo}>
           <View style={styles.logoIcon}>
-            <Image source={logo} style={styles.imagen} resizeMode="cover" />
+            <Image source={logo} style={styles.image} resizeMode="cover" />
           </View>
           <Text style={styles.logoText}>Yatzari</Text>
         </View>
@@ -31,7 +30,6 @@ export default function Settings() {
 
       <Text style={styles.settingsText}>Ajustes</Text>
 
-      {/* Productos por página */}
       <View>
         <Text style={styles.titleSection}>     Productos por página</Text>
         <View style={styles.box}>
@@ -49,7 +47,6 @@ export default function Settings() {
         </View>
       </View>
 
-      {/* Modo oscuro */}
       <View>
         <View style={[styles.box, styles.switchBox]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -72,7 +69,7 @@ export default function Settings() {
 
 const createStyles = (colors: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  barra: {
+  bar: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -91,7 +88,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     justifyContent: 'center', alignItems: 'center',
     overflow: 'hidden',
   },
-  imagen: { width: '100%', height: '100%' },
+  image: { width: '100%', height: '100%' },
   logoText: {
     fontSize: 20, fontWeight: '700', color: colors.text,
     letterSpacing: 1.5, textTransform: 'uppercase',
@@ -99,7 +96,7 @@ const createStyles = (colors: any) => StyleSheet.create({
   settingsText: {
     fontSize: 25, fontWeight: 'bold',
     marginHorizontal: 16, marginBottom: 5,
-    color: colors.text, // 👈 faltaba el color
+    color: colors.text,
   },
   titleSection: {
     fontWeight: 'bold', fontSize: 15, color: colors.text,
@@ -115,7 +112,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     marginTop: 10,
   },
   switchBox: {
-    justifyContent: 'space-between', // 👈 alinea icono a la izquierda, switch a la derecha
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   options: {

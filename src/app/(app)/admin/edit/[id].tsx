@@ -13,7 +13,6 @@ export default function EditProduct() {
   const router = useRouter();
   const styles = createStyles(colors);
 
-  // Buscamos el producto por el ID de la URL
   const productToEdit = products.find(p => p.id === Number(id));
 
   if (!productToEdit) {
@@ -27,9 +26,8 @@ export default function EditProduct() {
   }
 
   const handleSubmit = (updatedData: any) => {
-    // Pasamos el ID original junto con los datos actualizados
     updateProduct(productToEdit.id, { ...updatedData, id: productToEdit.id });
-    router.back(); // Volver al inventario
+    router.back();
   };
 
   return (
@@ -42,7 +40,7 @@ export default function EditProduct() {
       </View>
 
       <ProductForm 
-        initialValues={productToEdit} // 👈 Le pasamos los datos actuales al formulario
+        initialValues={productToEdit}
         onSubmit={handleSubmit} 
         buttonText="Guardar Cambios" 
       />

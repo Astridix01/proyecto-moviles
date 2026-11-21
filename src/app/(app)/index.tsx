@@ -4,7 +4,7 @@ import Pagination from '@/components/Pagination';
 import ProductCard from "@/components/ProductCard";
 import SearchBar from "@/components/SearchBar";
 import ToastCarrito from "@/components/ToastCarrito";
-import { useProducts } from '@/hooks/useProducts'; // 👈 IMPORTAMOS EL HOOK DE PRODUCTOS
+import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
 import type { Product } from '@/types/product';
 import { useRef, useState } from "react";
@@ -16,13 +16,12 @@ export default function Catalogo() {
    const [search, setsearch] = useState("");
    const [page, setPage] = useState(1);
    
-   // 👇 Obtenemos pageSize, colores y los productos del contexto
    const { pageSize, colors } = useSettings();
-   const { products } = useProducts(); // 👈 TRAEMOS LOS PRODUCTOS
+   const { products } = useProducts();
    const styles = createStyles(colors);
 
-   const [categoria, setCategoria] = useState("todos");
-   const categorias = ["todos", "Aretes", "Collares", "Pulseras", "Anillos"];
+   const [category, setCategory] = useState("todos");
+   const categories = ["todos", "Aretes", "Collares", "Pulseras", "Anillos"];
 
    const [showToast, setShowToast] = useState(false);
    const [lastAddedName, setLastAddedName] = useState("");
@@ -41,14 +40,13 @@ export default function Catalogo() {
       }, 2500);
    };
 
-   // 👇 Reemplazamos 'productos' por 'products'
-   const filtrados = products.filter((p) =>
-      (categoria === "todos" || p.category === categoria) &&
+   const already_filtered = products.filter((p) =>
+      (category === "todos" || p.category === category) &&
       p.name.toLowerCase().includes(search.toLowerCase()));
 
-   const inicio = (page - 1) * pageSize;
-   const visibles = filtrados.slice(inicio, inicio + pageSize);
-   const totalPages = Math.ceil(filtrados.length / pageSize);
+   const start = (page - 1) * pageSize;
+   const visibles = already_filtered.slice(start, start + pageSize);
+   const totalPages = Math.ceil(already_filtered.length / pageSize);
 
    return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -68,9 +66,9 @@ export default function Catalogo() {
             }}
          />
          <FilterChips
-            categories={categorias}
-            selected={categoria}
-            onSelect={(c) => { setCategoria(c); setPage(1); }}
+            categories={categories}
+            selected={category}
+            onSelect={(c) => { setCategory(c); setPage(1); }}
          />
 
          <FlatList
@@ -93,7 +91,6 @@ export default function Catalogo() {
    );
 }
 
-// 👇 Función generadora de estilos
 const createStyles = (colors: any) => StyleSheet.create({
    container: {
       flex: 1,

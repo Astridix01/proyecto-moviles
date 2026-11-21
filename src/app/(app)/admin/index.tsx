@@ -1,7 +1,7 @@
 import logo from '@/assets/images/joyeria/logo.jpeg';
 import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
-import { getImageSource } from '@/utils/images'; // 👈 NUEVO IMPORT
+import { getImageSource } from '@/utils/images';
 import { useRouter } from 'expo-router';
 import { Edit2, Plus, Trash2 } from 'lucide-react-native';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -16,7 +16,6 @@ export default function AdminDashboard() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       
-      {/* Barra del logo */}
       <View style={styles.toolBar}>
         <View style={styles.logo}>
           <View style={styles.logoIcon}>
@@ -26,7 +25,6 @@ export default function AdminDashboard() {
         </View>
       </View>
       
-      {/* Contenedor con padding */}
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>Inventario</Text>
@@ -41,7 +39,6 @@ export default function AdminDashboard() {
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View style={styles.itemCard}>
-              {/* 👇 Usamos getImageSource para soportar mocks y URLs */}
               <Image 
                 source={getImageSource(item.images[0])} 
                 style={styles.itemImage} 
@@ -66,7 +63,6 @@ export default function AdminDashboard() {
   );
 }
 
-// 👇 Estilos (sin cambios)
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
     flex: 1,
