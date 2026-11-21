@@ -10,7 +10,7 @@ import { useRef, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Favoritos() {
+export default function Favorites() {
   const { favorites } = useFavorites();
   const { colors } = useSettings();
   const { products } = useProducts();

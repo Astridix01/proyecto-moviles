@@ -11,7 +11,7 @@ import { useRef, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Catalogo() {
+export default function Catalog() {
 
    const [search, setsearch] = useState("");
    const [page, setPage] = useState(1);
