@@ -20,7 +20,6 @@ import logo from '@/assets/images/joyeria/logo.jpeg';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function Register() {
-  // Estados para los campos del formulario
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
@@ -34,7 +33,6 @@ export default function Register() {
   const { login } = useAuth(); 
 
   const handleRegister = () => {
-    // Validaciones básicas
     if (!firstName || !lastName || !username || !email || !password || !confirmPassword) {
       Alert.alert('Campos vacíos', 'Por favor, llena todos los campos.');
       return;
@@ -49,32 +47,28 @@ export default function Register() {
       Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres.');
       return;
     }
-
-    // 1. Construimos el payload exacto que pide tu API
+  
     const payload = {
       username: username,
       email: email,
       first_name: firstName,
       last_name: lastName,
       password: password,
-      password2: confirmPassword, // La API pide confirmación como password2
+      password2: confirmPassword,
     };
 
-    // Imprimimos en consola para que verifiques los datos antes de conectar la API real
     console.log("PAYLOAD A ENVIAR:", payload);
 
     setIsLoading(true);
     
-    // Simulamos la petición al backend
     setTimeout(() => {
       setIsLoading(false);
-      // Como es simulado, usamos el login para que entre directo
       login({
         username: username,
         email: email,
         first_name: firstName,
         last_name: lastName,
-        role: 'user', // 👈 Todo registro nuevo es un cliente normal
+        role: 'user',
       });
     }, 1500);
   };
@@ -87,19 +81,16 @@ export default function Register() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
-          {/* Header con Logo */}
           <View style={styles.header}>
             <View style={styles.logoIcon}>
-              <Image source={logo} style={styles.imagen} resizeMode="cover" />
+              <Image source={logo} style={styles.image} resizeMode="cover" />
             </View>
             <Text style={styles.title}>Crea tu cuenta</Text>
             <Text style={styles.subtitle}>Únete a Yatzari y descubre nuestra colección</Text>
           </View>
 
-          {/* Formulario */}
           <View style={styles.form}>
             
-            {/* Fila para Nombre y Apellido */}
             <View style={styles.row}>
               <View style={[styles.inputContainer, styles.halfInput]}>
                 <User color={colors.textSecondary} size={20} style={styles.inputIcon} />
@@ -125,7 +116,6 @@ export default function Register() {
               </View>
             </View>
 
-            {/* Input de Username */}
             <View style={styles.inputContainer}>
               <AtSign color={colors.textSecondary} size={20} style={styles.inputIcon} />
               <TextInput
@@ -138,7 +128,6 @@ export default function Register() {
               />
             </View>
 
-            {/* Input de Email */}
             <View style={styles.inputContainer}>
               <Mail color={colors.textSecondary} size={20} style={styles.inputIcon} />
               <TextInput
@@ -152,7 +141,6 @@ export default function Register() {
               />
             </View>
 
-            {/* Input de Contraseña */}
             <View style={styles.inputContainer}>
               <Lock color={colors.textSecondary} size={20} style={styles.inputIcon} />
               <TextInput
@@ -172,7 +160,6 @@ export default function Register() {
               </TouchableOpacity>
             </View>
 
-            {/* Input de Confirmar Contraseña */}
             <View style={styles.inputContainer}>
               <Lock color={colors.textSecondary} size={20} style={styles.inputIcon} />
               <TextInput
@@ -185,7 +172,6 @@ export default function Register() {
               />
             </View>
 
-            {/* Botón de Registro */}
             <TouchableOpacity 
               style={styles.button} 
               onPress={handleRegister}
@@ -199,7 +185,6 @@ export default function Register() {
             </TouchableOpacity>
           </View>
 
-          {/* Footer / Link a Login */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
@@ -241,7 +226,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colors.primaryDark,
   },
-  imagen: {
+  image: {
     width: '100%',
     height: '100%',
   },
@@ -260,7 +245,7 @@ const styles = StyleSheet.create({
   form: {
     width: '100%',
   },
-  // Fila para poner Nombre y Apellido en la misma línea
+  
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -268,7 +253,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   halfInput: {
-    marginBottom: 0, // Quitamos el margen por defecto porque el row ya lo tiene
+    marginBottom: 0, 
     flex: 1,
   },
   inputContainer: {

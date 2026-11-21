@@ -35,15 +35,13 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      // Simulación de carga (bórralo cuando conectes tu AuthContext)
       setTimeout(() => {
         setIsLoading(false);
 
-        // 👇 Simulamos la respuesta del backend con el rol
         const isAdmin = email.toLowerCase() === 'admin@yatzari.com';
 
         login({
-          username: email.split('@')[0], // Toma lo que está antes del @
+          username: email.split('@')[0],
           email: email,
           first_name: isAdmin ? 'Admin' : 'Cliente',
           last_name: 'Prueba',
@@ -66,18 +64,15 @@ export default function Login() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
-          {/* Header con Logo */}
           <View style={styles.header}>
             <View style={styles.logoIcon}>
-              <Image source={logo} style={styles.imagen} resizeMode="cover" />
+              <Image source={logo} style={styles.image} resizeMode="cover" />
             </View>
             <Text style={styles.title}>Bienvenido a Yatzari</Text>
             <Text style={styles.subtitle}>Ingresa a tu cuenta para continuar</Text>
           </View>
 
-          {/* Formulario */}
           <View style={styles.form}>
-            {/* Input de Email */}
             <View style={styles.inputContainer}>
               <Mail color={colors.textSecondary} size={20} style={styles.inputIcon} />
               <TextInput
@@ -91,7 +86,6 @@ export default function Login() {
               />
             </View>
 
-            {/* Input de Contraseña */}
             <View style={styles.inputContainer}>
               <Lock color={colors.textSecondary} size={20} style={styles.inputIcon} />
               <TextInput
@@ -111,7 +105,6 @@ export default function Login() {
               </TouchableOpacity>
             </View>
 
-            {/* Botón de Login */}
             <TouchableOpacity 
               style={styles.button} 
               onPress={handleLogin}
@@ -125,7 +118,6 @@ export default function Login() {
             </TouchableOpacity>
           </View>
 
-          {/* Footer / Link a Registro */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>¿No tienes una cuenta? </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
@@ -162,11 +154,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    overflow: 'hidden', // Para que la imagen respete el borde redondeado
+    overflow: 'hidden',
     borderWidth: 2,
-    borderColor: colors.primaryDark, // Un pequeño borde para que resalte
+    borderColor: colors.primaryDark,
   },
-  imagen: {
+  image: {
     width: '100%',
     height: '100%',
   },
@@ -236,7 +228,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   footerLink: {
-    color: colors.accent, // Usamos el dorado/acento para el link
+    color: colors.accent,
     fontSize: 15,
     fontWeight: 'bold',
   },
