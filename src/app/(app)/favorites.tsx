@@ -11,7 +11,7 @@ import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Favoritos() {
-  const { favoritos } = useFavorites();
+  const { favorites } = useFavorites();
   const { colors } = useSettings();
   const { products } = useProducts(); // 👈 TRAEMOS LOS PRODUCTOS DEL CONTEXTO
   const styles = createStyles(colors);
@@ -22,7 +22,7 @@ export default function Favoritos() {
   const toastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleProductAdded = (product: Product) => {
-    setLastAddedName(product.nombre);
+    setLastAddedName(product.name);
     setShowToast(true);
 
     if (toastTimeout.current) {
@@ -36,7 +36,7 @@ export default function Favoritos() {
 
   // 👇 Usamos 'products' en lugar de 'productos'
   const productosFavoritos = products.filter((p) =>
-    favoritos.includes(p.id)
+    favorites.includes(p.id)
   );
 
   return (
