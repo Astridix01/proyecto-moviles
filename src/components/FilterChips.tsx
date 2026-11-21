@@ -1,4 +1,4 @@
-import { colors } from "@/constants/colors";
+import { useSettings } from "@/hooks/useSettings";
 import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
 
 type Props = {
@@ -7,7 +7,10 @@ type Props = {
     onSelect: (c: string) => void;
 };
 
-export default function FilterChips({ categories: categorias, selected: seleccionada, onSelect }: Props) {
+export default function FilterChips({ categories, selected, onSelect }: Props) {
+    const { colors } = useSettings();
+    const styles = createStyles(colors);
+
     return (
         <ScrollView
             horizontal
@@ -15,19 +18,25 @@ export default function FilterChips({ categories: categorias, selected: seleccio
             contentContainerStyle={{ paddingHorizontal: 10 }}
             style={{ flexGrow: 0 }}
         >
-            {categorias.map((c) => (
-                <Pressable
-                    key={c}
-                    onPress={() => onSelect(c)}
-                    style={[styles.chip, c === seleccionada && styles.chipActivo]}
-                >
-                    <Text style={styles.texto}>{c}</Text>
-                </Pressable>
-            ))}
+            {categories.map((c) => {
+                const isSelected = c === selected;
+                return (
+                    <Pressable
+                        key={c}
+                        onPress={() => onSelect(c)}
+                        style={[styles.chip, isSelected && styles.activeChip]}
+                    >
+                        <Text style={[styles.text, isSelected && styles.activeText]}>
+                            {c}
+                        </Text>
+                    </Pressable>
+                );
+            })}
         </ScrollView>
     );
 }
-const styles = StyleSheet.create({
+
+const createStyles = (colors: any) => StyleSheet.create({
     chip: {
         paddingHorizontal: 14,
         paddingVertical: 8,
@@ -36,13 +45,15 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         backgroundColor: colors.surface,
     },
-
-    chipActivo: {
-        backgroundColor: colors.primaryDark
+    activeChip: {
+        backgroundColor: colors.primaryDark,
     },
-
-    texto: {
+    text: {
         textTransform: 'capitalize',
-        color: colors.text
+        color: colors.text,
     },
-})
+    activeText: {
+        color: colors.white,
+        fontWeight: '600',
+    },
+});
