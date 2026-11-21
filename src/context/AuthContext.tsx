@@ -13,6 +13,7 @@ type AuthContextData = {
   user: UserProfile | null;
   login: (userData?: UserProfile) => void;
   logout: () => void;
+  updateUser: (data: Partial<UserProfile>) => void;
 };
 
 export const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -20,14 +21,12 @@ export const AuthContext = createContext<AuthContextData>({} as AuthContextData)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
-  // 👇 Agregamos el campo 'role' al usuario quemado.
-  // Lo dejamos como 'admin' para que puedas ver la nueva pestaña de inmediato.
   const [user, setUser] = useState<UserProfile | null>({
     username: 'yatzari_demo',
     email: 'demo@yatzari.com',
     first_name: 'Usuario',
     last_name: 'Demo',
-    role: 'admin', // 👈 Cambia a 'user' si quieres probar la vista normal
+    role: 'admin', 
   });
 
   const login = (userData?: UserProfile) => {
@@ -39,11 +38,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setIsAuthenticated(false);
-    setUser(null); // 👈 Limpiamos los datos del usuario al salir
+    setUser(null);
+  };
+
+  const updateUser = (data: Partial<UserProfile>) => {
+    setUser(prev => prev ? { ...prev, ...data } : prev);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
