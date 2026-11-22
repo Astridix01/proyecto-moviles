@@ -1,125 +1,400 @@
 import logo from '@/assets/images/joyeria/logo.jpeg';
 import { useSettings } from '@/hooks/useSettings';
-import { usePathname, useRouter } from 'expo-router';
-import { ChevronLeft, Moon, Sun } from 'lucide-react-native';
-import { Image, Pressable, StyleSheet, Switch, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from 'expo-router';
+import { Check, ChevronLeft, Flower, Moon, Package, Palette, Sun } from 'lucide-react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Settings() {
   const { pageSize, setPageSize, theme, setTheme, colors } = useSettings();
   const router = useRouter();
 
   const styles = createStyles(colors);
-  const pathname = usePathname();
-  console.log('SETTINGS montado, pathname:', pathname);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.bar}>
-        <Pressable onPress={() => router.back()} style={styles.backBtn}>
-          <ChevronLeft color={colors.text} size={24} />
-        </Pressable>
-        <View style={styles.logo}>
-          <View style={styles.logoIcon}>
-            <Image source={logo} style={styles.image} resizeMode="cover" />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+
+        <View style={styles.bar}>
+          <Pressable
+            onPress={() => router.back()}
+            style={styles.backBtn}
+          >
+            <ChevronLeft color={colors.text} size={24} />
+          </Pressable>
+
+          <View style={styles.logo}>
+            <View style={styles.logoIcon}>
+              <Image
+                source={logo}
+                style={styles.image}
+                resizeMode="cover"
+              />
+            </View>
+
+            <Text style={styles.logoText}>Yatzari</Text>
           </View>
-          <Text style={styles.logoText}>Yatzari</Text>
         </View>
-      </View>
 
-      <Text style={styles.settingsText}>Ajustes</Text>
+        <View style={styles.header}>
+          <Text style={styles.settingsText}>
+            Configuración
+          </Text>
 
-      <View>
-        <Text style={styles.titleSection}>     Producto por página</Text>
-        <View style={styles.box}>
-          {[5, 10, 15, 20, 25].map((n) => (
-            <Pressable
-              key={n}
-              onPress={() => setPageSize(n)}
-              style={[styles.options, n === pageSize && styles.activeOptions]}
-            >
-              <Text style={{ color: n === pageSize ? colors.white : colors.text}}>
-                {n}
-              </Text>
-            </Pressable>
-          ))}
+          <Text style={styles.subtitle}>
+            Personaliza tu experiencia en Yatzari.
+          </Text>
         </View>
-      </View>
 
-      <View>
-        <View style={[styles.box, styles.switchBox]}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            {theme === 'dark' 
-              ? <Moon color={colors.text} size={20} /> 
-              : <Sun color={colors.text} size={20} />}
-            <Text style={styles.titleSection}>Modo Oscuro</Text>
+        <View style={styles.section}>
+          <View style={styles.box}>
+
+            <View style={styles.sectionHeader}>
+              <View style={styles.iconContainer}>
+                <Package color={colors.primaryDark} size={21} />
+              </View>
+
+              <View style={styles.sectionInfo}>
+                <Text style={styles.titleSection}>
+                  Visualización de productos
+                </Text>
+
+                <Text style={styles.description}>
+                  Elige cuántos productos deseas mostrar por página.
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.optionsContainer}>
+              {[5, 10, 15, 20, 25].map((n) => (
+                <Pressable
+                  key={n}
+                  onPress={() => setPageSize(n)}
+                  style={[
+                    styles.options,
+                    n === pageSize && styles.activeOptions
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      n === pageSize && styles.activeOptionText
+                    ]}
+                  >
+                    {n}
+                  </Text>
+
+                  {n === pageSize && (
+                    <Check
+                      size={13}
+                      color={colors.white}
+                    />
+                  )}
+                </Pressable>
+              ))}
+            </View>
+
+            <Text style={styles.selectedText}>
+              {pageSize} productos seleccionados
+            </Text>
+
           </View>
-          <Switch
-            value={theme === "dark"}
-            onValueChange={(v) => setTheme(v ? "dark" : "light")}
-            trackColor={{ false: colors.lavender, true: colors.primaryDark }}
-            thumbColor={colors.white}
-          />
         </View>
-      </View>
+
+        <View style={styles.section}>
+          <View style={styles.box}>
+
+            <View style={styles.sectionHeader}>
+              <View style={styles.iconContainer}>
+                <Palette color={colors.primaryDark} size={21} />
+              </View>
+
+              <View style={styles.sectionInfo}>
+                <Text style={styles.titleSection}>
+                  Apariencia
+                </Text>
+
+                <Text style={styles.description}>
+                  Personaliza la apariencia de tu aplicación.
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.switchBox}>
+              <View style={styles.themeInfo}>
+
+                <View style={styles.themeIcon}>
+                  {theme === 'dark' ? (
+                    <Moon color={colors.primaryDark} size={21} />
+                  ) : (
+                    <Sun color={colors.primaryDark} size={21} />
+                  )}
+                </View>
+
+                <View style={styles.themeTextContainer}>
+                  <Text style={styles.themeTitle}>
+                    Modo oscuro
+                  </Text>
+
+                  <Text style={styles.description}>
+                    {theme === 'dark'
+                      ? 'Tema oscuro activado'
+                      : 'Tema claro activado'}
+                  </Text>
+                </View>
+
+              </View>
+
+              <Switch
+                value={theme === 'dark'}
+                onValueChange={(v) =>
+                  setTheme(v ? 'dark' : 'light')
+                }
+                trackColor={{
+                  false: colors.lavender,
+                  true: colors.primaryDark
+                }}
+                thumbColor={colors.white}
+              />
+            </View>
+
+          </View>
+        </View>
+
+        <View style={styles.footer}>
+          <Flower color={colors.primaryDark} size={25} />
+          <Text style={styles.footerTitle}>
+            Yatzari
+          </Text>
+
+          <Text style={styles.footerText}>
+            Belleza en cada detalle.
+          </Text>
+        </View>
+
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+
+  scrollContent: {
+    paddingBottom: 30,
+  },
+
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    gap: 14,
   },
+
   backBtn: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
     backgroundColor: colors.surface,
-    justifyContent: 'center', alignItems: 'center',
-  },
-  logo: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  logoIcon: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: colors.surface,
-    justifyContent: 'center', alignItems: 'center',
-    overflow: 'hidden',
-  },
-  image: { width: '100%', height: '100%' },
-  logoText: {
-    fontSize: 20, fontWeight: '700', color: colors.text,
-    letterSpacing: 1.5, textTransform: 'uppercase',
-  },
-  settingsText: {
-    fontSize: 25, fontWeight: 'bold',
-    marginHorizontal: 16, marginBottom: 5,
-    color: colors.text,
-  },
-  titleSection: {
-    fontWeight: 'bold', fontSize: 15, color: colors.text,
-  },
-  box: {
-    backgroundColor: colors.surface,
-    borderRadius: 15,
-    padding: 18,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  switchBox: {
-    justifyContent: 'space-between',
+
+  logo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+
+  logoIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.surface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+
+  image: {
+    width: '100%',
+    height: '100%',
+  },
+
+  logoText: {
+    fontSize: 19,
+    fontWeight: '700',
+    color: colors.text,
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+
+  header: {
+    paddingHorizontal: 20,
+    marginTop: 18,
+    marginBottom: 25,
+  },
+
+  settingsText: {
+    fontSize: 27,
+    fontWeight: 'bold',
+    color: colors.text,
+  },
+
+  subtitle: {
+    fontSize: 14,
+    color: colors.text,
+    opacity: 0.65,
+    marginTop: 6,
+  },
+
+  section: {
+    marginHorizontal: 18,
+    marginBottom: 18,
+  },
+
+  box: {
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    padding: 18,
+    gap: 18,
+  },
+
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+
+  iconContainer: {
+    width: 43,
+    height: 43,
+    borderRadius: 13,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  options: {
-    width: 48, height: 40, borderRadius: 12,
-    backgroundColor: colors.background,
-    justifyContent: 'center', alignItems: 'center',
+
+  sectionInfo: {
+    flex: 1,
+    gap: 4,
   },
-  activeOptions: { backgroundColor: colors.primaryDark },
+
+  titleSection: {
+    fontWeight: '700',
+    fontSize: 15,
+    color: colors.text,
+  },
+
+  description: {
+    fontSize: 12,
+    color: colors.text,
+    opacity: 0.65,
+    lineHeight: 17,
+  },
+
+  optionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+
+  options: {
+    flex: 1,
+    minHeight: 43,
+    borderRadius: 12,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.lavender,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 2,
+  },
+
+  activeOptions: {
+    backgroundColor: colors.primaryDark,
+    borderColor: colors.primaryDark,
+  },
+
+  optionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+
+  activeOptionText: {
+    color: colors.white,
+  },
+
+  selectedText: {
+    fontSize: 12,
+    color: colors.primaryDark,
+    fontWeight: '600',
+    marginTop: -8,
+  },
+
+  switchBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: colors.lavender,
+    paddingTop: 16,
+  },
+
+  themeInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+
+  themeIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  themeTextContainer: {
+    flex: 1,
+    gap: 4,
+  },
+
+  themeTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+  },
+
+  footer: {
+    alignItems: 'center',
+    marginTop: 25,
+    gap: 6,
+  },
+
+  footerTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.text,
+    letterSpacing: 1.5,
+  },
+
+  footerText: {
+    fontSize: 12,
+    color: colors.text,
+    opacity: 0.6,
+  },
+
 });
