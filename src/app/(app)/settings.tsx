@@ -1,15 +1,68 @@
+import { useState } from 'react';
 import logo from '@/assets/images/joyeria/logo.jpeg';
 import { useSettings } from '@/hooks/useSettings';
 import { useRouter } from 'expo-router';
-import { Check, ChevronLeft, Flower, Moon, Package, Palette, Sun } from 'lucide-react-native';
-import { Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import {
+  Check,
+  ChevronLeft,
+  Flower,
+  Moon,
+  Package,
+  Palette,
+  Sun,
+} from 'lucide-react-native';
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const PAGE_SIZE_OPTIONS = [5, 10, 15, 20, 25, 50];
+
 export default function Settings() {
-  const { pageSize, setPageSize, theme, setTheme, colors } = useSettings();
+  const { pageSize, setPageSize, isDark, setTheme, colors } = useSettings();
   const router = useRouter();
 
+  const [isSyncingTheme, setIsSyncingTheme] = useState(false);
+  const [isSyncingPageSize, setIsSyncingPageSize] = useState(false);
+
   const styles = createStyles(colors);
+
+  const handleThemeChange = async (value: boolean) => {
+    if (isSyncingTheme) return;
+    setIsSyncingTheme(true);
+    try {
+      await setTheme(value ? 'dark' : 'light');
+    } catch {
+      Alert.alert(
+        'No se pudo guardar',
+        'Verifica tu conexión e intenta de nuevo.'
+      );
+    } finally {
+      setIsSyncingTheme(false);
+    }
+  };
+
+  const handlePageSizeChange = async (n: number) => {
+    if (isSyncingPageSize || n === pageSize) return;
+    setIsSyncingPageSize(true);
+    try {
+      await setPageSize(n);
+    } catch {
+      Alert.alert(
+        'No se pudo guardar',
+        'Verifica tu conexión e intenta de nuevo.'
+      );
+    } finally {
+      setIsSyncingPageSize(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -17,33 +70,21 @@ export default function Settings() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-
         <View style={styles.bar}>
-          <Pressable
-            onPress={() => router.back()}
-            style={styles.backBtn}
-          >
+          <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <ChevronLeft color={colors.text} size={24} />
           </Pressable>
 
           <View style={styles.logo}>
             <View style={styles.logoIcon}>
-              <Image
-                source={logo}
-                style={styles.image}
-                resizeMode="cover"
-              />
+              <Image source={logo} style={styles.image} resizeMode="cover" />
             </View>
-
             <Text style={styles.logoText}>Yatzari</Text>
           </View>
         </View>
 
         <View style={styles.header}>
-          <Text style={styles.settingsText}>
-            Configuración
-          </Text>
-
+          <Text style={styles.settingsText}>Configuración</Text>
           <Text style={styles.subtitle}>
             Personaliza tu experiencia en Yatzari.
           </Text>
@@ -51,17 +92,14 @@ export default function Settings() {
 
         <View style={styles.section}>
           <View style={styles.box}>
-
             <View style={styles.sectionHeader}>
               <View style={styles.iconContainer}>
                 <Package color={colors.primaryDark} size={21} />
               </View>
-
               <View style={styles.sectionInfo}>
                 <Text style={styles.titleSection}>
                   Visualización de productos
                 </Text>
-
                 <Text style={styles.description}>
                   Elige cuántos productos deseas mostrar por página.
                 </Text>
@@ -69,29 +107,27 @@ export default function Settings() {
             </View>
 
             <View style={styles.optionsContainer}>
-              {[5, 10, 15, 20, 25].map((n) => (
+              {PAGE_SIZE_OPTIONS.map((n) => (
                 <Pressable
                   key={n}
-                  onPress={() => setPageSize(n)}
+                  disabled={isSyncingPageSize}
+                  onPress={() => handlePageSizeChange(n)}
                   style={[
                     styles.options,
-                    n === pageSize && styles.activeOptions
+                    n === pageSize && styles.activeOptions,
+                    isSyncingPageSize && { opacity: 0.6 },
                   ]}
                 >
                   <Text
                     style={[
                       styles.optionText,
-                      n === pageSize && styles.activeOptionText
+                      n === pageSize && styles.activeOptionText,
                     ]}
                   >
                     {n}
                   </Text>
-
                   {n === pageSize && (
-                    <Check
-                      size={13}
-                      color={colors.white}
-                    />
+                    <Check size={13} color={colors.white} />
                   )}
                 </Pressable>
               ))}
@@ -100,23 +136,17 @@ export default function Settings() {
             <Text style={styles.selectedText}>
               {pageSize} productos seleccionados
             </Text>
-
           </View>
         </View>
 
         <View style={styles.section}>
           <View style={styles.box}>
-
             <View style={styles.sectionHeader}>
               <View style={styles.iconContainer}>
                 <Palette color={colors.primaryDark} size={21} />
               </View>
-
               <View style={styles.sectionInfo}>
-                <Text style={styles.titleSection}>
-                  Apariencia
-                </Text>
-
+                <Text style={styles.titleSection}>Apariencia</Text>
                 <Text style={styles.description}>
                   Personaliza la apariencia de tu aplicación.
                 </Text>
@@ -125,56 +155,42 @@ export default function Settings() {
 
             <View style={styles.switchBox}>
               <View style={styles.themeInfo}>
-
                 <View style={styles.themeIcon}>
-                  {theme === 'dark' ? (
+                  {isDark ? (
                     <Moon color={colors.primaryDark} size={21} />
                   ) : (
                     <Sun color={colors.primaryDark} size={21} />
                   )}
                 </View>
-
                 <View style={styles.themeTextContainer}>
-                  <Text style={styles.themeTitle}>
-                    Modo oscuro
-                  </Text>
-
+                  <Text style={styles.themeTitle}>Modo oscuro</Text>
                   <Text style={styles.description}>
-                    {theme === 'dark'
+                    {isDark
                       ? 'Tema oscuro activado'
                       : 'Tema claro activado'}
                   </Text>
                 </View>
-
               </View>
 
               <Switch
-                value={theme === 'dark'}
-                onValueChange={(v) =>
-                  setTheme(v ? 'dark' : 'light')
-                }
+                disabled={isSyncingTheme}
+                value={isDark}
+                onValueChange={handleThemeChange}
                 trackColor={{
                   false: colors.lavender,
-                  true: colors.primaryDark
+                  true: colors.primaryDark,
                 }}
                 thumbColor={colors.white}
               />
             </View>
-
           </View>
         </View>
 
         <View style={styles.footer}>
           <Flower color={colors.primaryDark} size={25} />
-          <Text style={styles.footerTitle}>
-            Yatzari
-          </Text>
-
-          <Text style={styles.footerText}>
-            Belleza en cada detalle.
-          </Text>
+          <Text style={styles.footerTitle}>Yatzari</Text>
+          <Text style={styles.footerText}>Belleza en cada detalle.</Text>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
