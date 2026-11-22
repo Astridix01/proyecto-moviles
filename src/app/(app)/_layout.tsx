@@ -9,7 +9,7 @@ export default function AppLayout() {
   const { colors } = useSettings();
   const { user } = useAuth();
   const { totalItems } = useCart();
-  const { favorites: fav } = useFavorites();
+  const { favoriteIds } = useFavorites();
 
   return (
     <Tabs
@@ -53,7 +53,7 @@ export default function AppLayout() {
         options={{
           title: 'Favoritos',
           tabBarIcon: ({ color, size }) => <Heart color={color} size={size} />,
-          tabBarBadge: fav.length > 0 ? fav.length : undefined,
+          tabBarBadge: favoriteIds.length > 0 ? favoriteIds.length : undefined,
           tabBarBadgeStyle: {
             backgroundColor: colors.surface2,
             color: colors.white,

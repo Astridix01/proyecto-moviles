@@ -21,7 +21,7 @@ type ProductPayload = {
   imageUri: string | null;
 };
 
-const mapProduct = (apiProduct: ApiProduct): Product => ({
+export const mapProduct = (apiProduct: ApiProduct): Product => ({
   id: apiProduct.id,
   name: apiProduct.nombre,
   price: apiProduct.precio,
