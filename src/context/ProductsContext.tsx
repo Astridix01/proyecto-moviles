@@ -1,13 +1,16 @@
-// src/context/ProductsContext.tsx
 import React, { createContext, useState, ReactNode } from 'react';
 import { productService } from '@/services/productService';
 import type { Product } from '@/types/product';
 
-type FetchParams = {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  category?: string;
+type FetchParams = { page?: number; pageSize?: number; search?: string; category?: string };
+
+type ProductPayload = {
+  name: string;
+  price: string;
+  description: string;
+  category: string;
+  material: string;
+  imageUri: string | null;
 };
 
 type ProductsContextData = {
@@ -16,6 +19,9 @@ type ProductsContextData = {
   isLoading: boolean;
   error: string | null;
   fetchProducts: (params: FetchParams) => Promise<void>;
+  addProduct: (data: ProductPayload) => Promise<Product>;
+  updateProduct: (id: number, data: ProductPayload) => Promise<Product>;
+  deleteProduct: (id: number) => Promise<void>;
 };
 
 export const ProductsContext = createContext<ProductsContextData>({} as ProductsContextData);
@@ -41,16 +47,23 @@ export function ProductsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const addProduct = async (data: ProductPayload) => {
+    return await productService.create(data);
+  };
+
+  const updateProduct = async (id: number, data: ProductPayload) => {
+    return await productService.update(id, data);
+  };
+
+  const deleteProduct = async (id: number) => {
+    await productService.remove(id);
+  };
+
   return (
-    <ProductsContext.Provider
-      value={{
-        products,
-        totalCount,
-        isLoading,
-        error,
-        fetchProducts,
-      }}
-    >
+    <ProductsContext.Provider value={{
+      products, totalCount, isLoading, error, fetchProducts,
+      addProduct, updateProduct, deleteProduct,
+    }}>
       {children}
     </ProductsContext.Provider>
   );

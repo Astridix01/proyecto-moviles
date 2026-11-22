@@ -1,10 +1,11 @@
-import ProductForm from "@/components/ProductForm";
-import { useProducts } from "@/hooks/useProducts";
-import { useSettings } from "@/hooks/useSettings";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ChevronLeft } from 'lucide-react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import ProductForm from '@/components/ProductForm';
+import { useProducts } from '@/hooks/useProducts';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function EditProduct() {
   const { id } = useLocalSearchParams();
@@ -12,22 +13,32 @@ export default function EditProduct() {
   const { colors } = useSettings();
   const router = useRouter();
   const styles = createStyles(colors);
+  const [isSaving, setIsSaving] = useState(false);
 
   const productToEdit = products.find(p => p.id === Number(id));
 
   if (!productToEdit) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text style={{ color: colors.text, textAlign: 'center', marginTop: 50 }}>
-          Producto no encontrado
-        </Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator color={colors.primaryDark} size="large" />
+          <Text style={{ color: colors.textSecondary, marginTop: 12 }}>
+            Cargando producto...
+          </Text>
+        </View>
       </SafeAreaView>
     );
   }
 
-  const handleSubmit = (updatedData: any) => {
-    updateProduct(productToEdit.id, { ...updatedData, id: productToEdit.id });
-    router.back();
+  const handleSubmit = async (data: any) => {
+    setIsSaving(true);
+    try {
+      await updateProduct(productToEdit.id, data);
+      Alert.alert('Éxito', 'Producto actualizado correctamente');
+      router.back();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -38,11 +49,11 @@ export default function EditProduct() {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Editar Producto</Text>
       </View>
-
-      <ProductForm 
+      <ProductForm
         initialValues={productToEdit}
-        onSubmit={handleSubmit} 
-        buttonText="Guardar Cambios" 
+        onSubmit={handleSubmit}
+        buttonText="Guardar Cambios"
+        isLoading={isSaving}
       />
     </SafeAreaView>
   );
@@ -51,22 +62,10 @@ export default function EditProduct() {
 const createStyles = (colors: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.surface,
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 10,
+    borderBottomWidth: 1, borderBottomColor: colors.surface,
   },
-  backBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: colors.surface,
-    justifyContent: 'center', alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginLeft: 16,
-  },
+  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center' },
+  headerTitle: { fontSize: 20, fontWeight: 'bold', color: colors.text, marginLeft: 16 },
 });

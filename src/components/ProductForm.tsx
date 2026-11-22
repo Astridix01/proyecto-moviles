@@ -1,85 +1,125 @@
+import React, { useState } from 'react';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  ScrollView, Image, Alert, ActivityIndicator,
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Camera, X } from 'lucide-react-native';
 import { useSettings } from '@/hooks/useSettings';
 import type { Product } from '@/types/product';
-import { useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-// Importamos algunas imágenes locales para usarlas como "opciones" en el CRUD
-import img1 from '@/assets/images/joyeria/anillos.jpeg';
-import img2 from '@/assets/images/joyeria/collar1.jpeg';
-import img4 from '@/assets/images/joyeria/monos.jpeg';
-import img3 from '@/assets/images/joyeria/pulsera.jpeg';
+const CATEGORIES = ['Aretes', 'Collares', 'Pulseras', 'Anillos'];
 
-const AVAILABLE_IMAGES = [img1, img2, img3, img4];
-const CATEGORIAS = ["Aretes", "Collares", "Pulseras", "Anillos"];
+type ProductPayload = {
+  name: string;
+  price: string;
+  description: string;
+  category: string;
+  material: string;
+  imageUri: string | null;
+};
 
 type Props = {
   initialValues?: Partial<Product>;
-  onSubmit: (data: Omit<Product, 'id'>) => void;
+  onSubmit: (data: ProductPayload) => Promise<void>;
   buttonText: string;
+  isLoading?: boolean;
 };
 
-export default function ProductForm({ initialValues, onSubmit, buttonText }: Props) {
+export default function ProductForm({ initialValues, onSubmit, buttonText, isLoading }: Props) {
   const { colors } = useSettings();
   const styles = createStyles(colors);
 
-  const [nombre, setNombre] = useState(initialValues?.name || '');
-  const [precio, setPrecio] = useState(initialValues?.price?.toString() || '');
-  const [descripcion, setDescripcion] = useState(initialValues?.description || '');
-  const [categoria, setCategoria] = useState(initialValues?.category || 'Aretes');
+  const [name, setName] = useState(initialValues?.name || '');
+  const [price, setPrice] = useState(initialValues?.price || '');
+  const [description, setDescription] = useState(initialValues?.description || '');
+  const [category, setCategory] = useState(initialValues?.category || 'Aretes');
   const [material, setMaterial] = useState(initialValues?.material || '');
-  
-  // Estado para la imagen seleccionada (por defecto la primera)
-  const [selectedImage, setSelectedImage] = useState<any>(
-    initialValues?.images ? initialValues.images[0] : AVAILABLE_IMAGES[0]
+  const [imageUri, setImageUri] = useState<string | null>(
+    initialValues?.images && initialValues.images.length > 0
+      ? String(initialValues.images[0])
+      : null
   );
 
-  const handleSave = () => {
-    if (!nombre || !precio || !descripcion || !material) {
-      Alert.alert('Error', 'Por favor, llena todos los campos.');
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Permiso requerido', 'Necesitamos acceso a tu galería para elegir la imagen.');
       return;
     }
 
-    const precioNum = parseFloat(precio);
-    if (isNaN(precioNum)) {
-      Alert.alert('Error', 'El precio debe ser un número válido.');
-      return;
-    }
-
-    onSubmit({
-      name: nombre,
-      price: precioNum,
-      description: descripcion,
-      category: categoria,
-      material,
-      images: [selectedImage], // Guardamos el array de imágenes
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
     });
+
+    if (!result.canceled && result.assets[0]) {
+      setImageUri(result.assets[0].uri);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!name.trim() || !price.trim() || !description.trim() || !material.trim()) {
+      Alert.alert('Error', 'Todos los campos son obligatorios.');
+      return;
+    }
+
+    const priceNum = parseFloat(price);
+    if (isNaN(priceNum) || priceNum <= 0) {
+      Alert.alert('Error', 'El precio debe ser un número mayor a 0.');
+      return;
+    }
+
+    try {
+      await onSubmit({
+        name: name.trim(),
+        price: price.trim(),
+        description: description.trim(),
+        category,
+        material: material.trim(),
+        imageUri,
+      });
+    } catch (error: any) {
+      const errorData = error.response?.data;
+      let msg = 'No se pudo guardar el producto.';
+      if (errorData) {
+        const firstError = Object.values(errorData)[0];
+        if (Array.isArray(firstError)) msg = firstError[0];
+        else if (typeof firstError === 'string') msg = firstError;
+      }
+      Alert.alert('Error', msg);
+    }
   };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      
-      {/* Selector de Imagen (Simulado) */}
       <Text style={styles.label}>Imagen del Producto</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageSelector}>
-        {AVAILABLE_IMAGES.map((img, index) => (
-          <TouchableOpacity 
-            key={index} 
-            onPress={() => setSelectedImage(img)}
-            style={[
-              styles.imageOption, 
-              selectedImage === img && { borderColor: colors.primaryDark, borderWidth: 3 }
-            ]}
-          >
-            <Image source={img} style={styles.imagePreview} />
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+        {imageUri ? (
+          <View style={{ width: '100%', height: '100%' }}>
+            <Image source={{ uri: imageUri }} style={styles.imagePreview} resizeMode="cover" />
+            <TouchableOpacity
+              style={styles.removeImageBtn}
+              onPress={() => setImageUri(null)}
+            >
+              <X color={colors.white} size={16} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.imagePlaceholder}>
+            <Camera color={colors.primaryDark} size={32} />
+            <Text style={styles.imagePlaceholderText}>Seleccionar imagen</Text>
+          </View>
+        )}
+      </TouchableOpacity>
 
       <Text style={styles.label}>Nombre</Text>
       <TextInput
         style={styles.input}
-        value={nombre}
-        onChangeText={setNombre}
+        value={name}
+        onChangeText={setName}
         placeholder="Ej. Anillo de plata"
         placeholderTextColor={colors.textSecondary}
       />
@@ -87,22 +127,22 @@ export default function ProductForm({ initialValues, onSubmit, buttonText }: Pro
       <Text style={styles.label}>Precio</Text>
       <TextInput
         style={styles.input}
-        value={precio}
-        onChangeText={setPrecio}
-        placeholder="Ej. 150"
-        keyboardType="numeric"
+        value={price}
+        onChangeText={setPrice}
+        placeholder="Ej. 150.00"
+        keyboardType="decimal-pad"
         placeholderTextColor={colors.textSecondary}
       />
 
       <Text style={styles.label}>Categoría</Text>
       <View style={styles.chipsContainer}>
-        {CATEGORIAS.map((cat) => (
+        {CATEGORIES.map((cat) => (
           <TouchableOpacity
             key={cat}
-            style={[styles.chip, categoria === cat && styles.chipActive]}
-            onPress={() => setCategoria(cat)}
+            style={[styles.chip, category === cat && styles.chipActive]}
+            onPress={() => setCategory(cat)}
           >
-            <Text style={[styles.chipText, categoria === cat && styles.chipTextActive]}>
+            <Text style={[styles.chipText, category === cat && styles.chipTextActive]}>
               {cat}
             </Text>
           </TouchableOpacity>
@@ -121,98 +161,58 @@ export default function ProductForm({ initialValues, onSubmit, buttonText }: Pro
       <Text style={styles.label}>Descripción</Text>
       <TextInput
         style={[styles.input, styles.textArea]}
-        value={descripcion}
-        onChangeText={setDescripcion}
+        value={description}
+        onChangeText={setDescription}
         placeholder="Describe la pieza..."
         multiline
         numberOfLines={4}
         placeholderTextColor={colors.textSecondary}
       />
 
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>{buttonText}</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color={colors.white} />
+        ) : (
+          <Text style={styles.saveButtonText}>{buttonText}</Text>
+        )}
       </TouchableOpacity>
-
     </ScrollView>
   );
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 8,
-    marginTop: 12,
-  },
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { padding: 20, paddingBottom: 40 },
+  label: { fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: 8, marginTop: 12 },
   input: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    padding: 14,
-    fontSize: 16,
-    color: colors.text,
-    marginBottom: 8,
+    backgroundColor: colors.surface, borderRadius: 10, padding: 14,
+    fontSize: 16, color: colors.text, marginBottom: 8,
   },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
+  textArea: { height: 100, textAlignVertical: 'top' },
+  imagePicker: {
+    width: 130, height: 130, borderRadius: 16,
+    backgroundColor: colors.surface, overflow: 'hidden',
+    borderWidth: 2, borderColor: colors.primaryDark, borderStyle: 'dashed',
+    alignSelf: 'flex-start', marginBottom: 8,
   },
-  chipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 8,
+  imagePreview: { width: '100%', height: '100%' },
+  removeImageBtn: {
+    position: 'absolute', top: 6, right: 6,
+    backgroundColor: colors.error, borderRadius: 12,
+    width: 24, height: 24, justifyContent: 'center', alignItems: 'center',
   },
-  chip: {
-    backgroundColor: colors.surface,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  imagePlaceholder: {
+    flex: 1, justifyContent: 'center', alignItems: 'center', gap: 6,
   },
-  chipActive: {
-    backgroundColor: colors.primaryDark,
-  },
-  chipText: {
-    color: colors.text,
-  },
-  chipTextActive: {
-    color: colors.white,
-  },
-  imageSelector: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  imageOption: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginRight: 10,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  imagePreview: {
-    width: '100%',
-    height: '100%',
-  },
+  imagePlaceholderText: { fontSize: 11, color: colors.primaryDark, fontWeight: '600' },
+  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
+  chip: { backgroundColor: colors.surface, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
+  chipActive: { backgroundColor: colors.primaryDark },
+  chipText: { color: colors.text },
+  chipTextActive: { color: colors.white },
   saveButton: {
-    backgroundColor: colors.primaryDark,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 24,
+    backgroundColor: colors.primaryDark, paddingVertical: 16,
+    borderRadius: 12, alignItems: 'center', marginTop: 24,
   },
-  saveButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  saveButtonText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
 });

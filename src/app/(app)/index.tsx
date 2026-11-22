@@ -8,7 +8,8 @@ import ToastCarrito from "@/components/ToastCarrito";
 import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
 import type { Product } from '@/types/product';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useFocusEffect } from 'expo-router';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -35,18 +36,19 @@ export default function Catalog() {
    };
 
    // 👇 EFECTO CON DEBOUNCE PARA BÚSQUEDA Y PAGINACIÓN
-   useEffect(() => {
-      const delayDebounceFn = setTimeout(() => {
-         fetchProducts({
-            page: page,
-            pageSize: pageSize,
-            search: search,
-            category: category,
-         });
-      }, 300);
-
-      return () => clearTimeout(delayDebounceFn);
-   }, [page, search, category, pageSize]); 
+   useFocusEffect(
+      useCallback(() => {
+         const timer = setTimeout(() => {
+            fetchProducts({
+               page: page,
+               pageSize: pageSize,
+               search: search,
+               category: category,
+            });
+         }, 300);
+         return () => clearTimeout(timer);
+      }, [page, search, category, pageSize])
+   );
 
    // Reseteamos la página a 1 si cambia la búsqueda o la categoría
    useEffect(() => { setPage(1); }, [search, category, pageSize]);
