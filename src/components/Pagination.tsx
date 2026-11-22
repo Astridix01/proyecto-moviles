@@ -1,3 +1,4 @@
+
 import { useSettings } from '@/hooks/useSettings';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -8,11 +9,10 @@ type Props = {
     onChange: (newPage: number) => void;
 }
 
-export default function Pagination({ page, totalPages, onChange }: Props) {
+export default function Pagination({ page: page, totalPages, onChange }: Props) {
     const { colors } = useSettings();
     const styles = createStyles(colors);
 
-    // Si solo hay una página (o ninguna), no mostramos el paginador
     if (totalPages <= 1) return null;
 
     const canGoPrev = page > 1;
@@ -20,7 +20,7 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
 
     return (
         <View style={styles.container}>
-            
+
             {/* Botón Atrás */}
             <Pressable
                 onPress={() => onChange(page - 1)}
@@ -31,13 +31,12 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
                     pressed && canGoPrev && styles.buttonPressed,
                 ]}
             >
-                <ChevronLeft 
-                    color={canGoPrev ? colors.text : colors.textSecondary} 
-                    size={22} 
+                <ChevronLeft
+                    color={canGoPrev ? colors.text : colors.textSecondary}
+                    size={22}
                 />
             </Pressable>
 
-            {/* Indicador de página */}
             <View style={styles.pageInfo}>
                 <Text style={styles.pageLabel}>Página</Text>
                 <View style={styles.pageNumbers}>
@@ -47,7 +46,6 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
                 </View>
             </View>
 
-            {/* Botón Siguiente */}
             <Pressable
                 onPress={() => onChange(page + 1)}
                 disabled={!canGoNext}
@@ -57,9 +55,9 @@ export default function Pagination({ page, totalPages, onChange }: Props) {
                     pressed && canGoNext && styles.buttonPressed,
                 ]}
             >
-                <ChevronRight 
-                    color={canGoNext ? colors.text : colors.textSecondary} 
-                    size={22} 
+                <ChevronRight
+                    color={canGoNext ? colors.text : colors.textSecondary}
+                    size={22}
                 />
             </Pressable>
 
@@ -74,7 +72,7 @@ const createStyles = (colors: any) => StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 20,
-        gap: 20,
+        gap: 10,
     },
     button: {
         width: 44,
@@ -83,7 +81,6 @@ const createStyles = (colors: any) => StyleSheet.create({
         backgroundColor: colors.surface,
         justifyContent: 'center',
         alignItems: 'center',
-        // Sombra sutil para que resalten
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,
@@ -95,7 +92,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     },
     buttonPressed: {
         opacity: 0.7,
-        transform: [{ scale: 0.95 }], // Efecto de "hundido" al presionar
+        transform: [{ scale: 0.95 }],
     },
     pageInfo: {
         alignItems: 'center',
