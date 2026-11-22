@@ -8,9 +8,9 @@ import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
 import type { Product } from '@/types/product';
 import { useEffect, useRef, useState } from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, StyleSheet, TouchableOpacity, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+//import { testConnection } from '@/services/__test__';
 
 export default function Catalog() {
 
@@ -64,7 +64,11 @@ export default function Catalog() {
                <Text style={styles.logoText}>Yatzari</Text>
             </View>
          </View>
-
+      {/*
+         <TouchableOpacity onPress={testConnection}>
+              <Text>Test</Text>
+         </TouchableOpacity>
+      */}
          <SearchBar
             value={search} onChangeText={(texto) => {
                setsearch(texto);
