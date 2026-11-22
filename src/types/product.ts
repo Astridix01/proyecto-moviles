@@ -7,6 +7,6 @@ export type Product = {
   description: string;
   category: string;
   material: string;
-  // 👇 Acepta tanto imágenes locales (mock) como URLs (backend)
   images: (ImageSourcePropType | string)[];
+  active: boolean;
 };

@@ -1,35 +1,56 @@
-import { products as mockProductos } from '@/mocks/products';
+// src/context/ProductsContext.tsx
+import React, { createContext, useState, ReactNode } from 'react';
+import { productService } from '@/services/productService';
 import type { Product } from '@/types/product';
-import { createContext, ReactNode, useState } from 'react';
+
+type FetchParams = {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  category?: string;
+};
 
 type ProductsContextData = {
   products: Product[];
-  addProduct: (product: Omit<Product, 'id'>) => void;
-  updateProduct: (id: number, updatedProduct: Product) => void;
-  deleteProduct: (id: number) => void;
+  totalCount: number;
+  isLoading: boolean;
+  error: string | null;
+  fetchProducts: (params: FetchParams) => Promise<void>;
 };
 
 export const ProductsContext = createContext<ProductsContextData>({} as ProductsContextData);
 
 export function ProductsProvider({ children }: { children: ReactNode }) {
-  // Inicializamos con tus datos mock
-  const [products, setProducts] = useState<Product[]>(mockProductos);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const addProduct = (newProduct: Omit<Product, 'id'>) => {
-    const id = Math.max(...products.map(p => p.id), 0) + 1; // Generamos un ID falso
-    setProducts([...products, { ...newProduct, id }]);
-  };
-
-  const updateProduct = (id: number, updated: Product) => {
-    setProducts(products.map(p => p.id === id ? updated : p));
-  };
-
-  const deleteProduct = (id: number) => {
-    setProducts(products.filter(p => p.id !== id));
+  const fetchProducts = async (params: FetchParams) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { results, totalCount } = await productService.getAll(params);
+      setProducts(results);
+      setTotalCount(totalCount);
+    } catch (err: any) {
+      setError('No se pudieron cargar los productos.');
+      console.error('Error fetching products:', err.response?.data || err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <ProductsContext.Provider value={{ products, addProduct, updateProduct, deleteProduct }}>
+    <ProductsContext.Provider
+      value={{
+        products,
+        totalCount,
+        isLoading,
+        error,
+        fetchProducts,
+      }}
+    >
       {children}
     </ProductsContext.Provider>
   );

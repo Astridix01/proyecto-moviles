@@ -1,3 +1,4 @@
+// src/app/(app)/index.tsx
 import logo from '@/assets/images/joyeria/logo.jpeg';
 import FilterChips from '@/components/FilterChips';
 import Pagination from '@/components/Pagination';
@@ -8,17 +9,15 @@ import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
 import type { Product } from '@/types/product';
 import { useEffect, useRef, useState } from "react";
-import { FlatList, Image, StyleSheet, TouchableOpacity, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-//import { testConnection } from '@/services/__test__';
 
 export default function Catalog() {
-
-   const [search, setsearch] = useState("");
+   const [search, setSearch] = useState("");
    const [page, setPage] = useState(1);
 
    const { pageSize, colors } = useSettings();
-   const { products } = useProducts();
+   const { products, totalCount, isLoading, fetchProducts } = useProducts();
    const styles = createStyles(colors);
 
    const [category, setCategory] = useState("todos");
@@ -31,28 +30,28 @@ export default function Catalog() {
    const handleProductAdded = (product: Product) => {
       setLastAddedName(product.name);
       setShowToast(true);
-
-      if (toastTimeout.current) {
-         clearTimeout(toastTimeout.current);
-      }
-
-      toastTimeout.current = setTimeout(() => {
-         setShowToast(false);
-      }, 2500);
+      if (toastTimeout.current) clearTimeout(toastTimeout.current);
+      toastTimeout.current = setTimeout(() => setShowToast(false), 2500);
    };
 
-   const already_filtered = products.filter((p) =>
-      (category === "todos" || p.category === category) &&
-      p.name.toLowerCase().includes(search.toLowerCase()));
+   // 👇 EFECTO CON DEBOUNCE PARA BÚSQUEDA Y PAGINACIÓN
+   useEffect(() => {
+      const delayDebounceFn = setTimeout(() => {
+         fetchProducts({
+            page: page,
+            pageSize: pageSize,
+            search: search,
+            category: category,
+         });
+      }, 300);
 
+      return () => clearTimeout(delayDebounceFn);
+   }, [page, search, category, pageSize]); 
 
-   const totalPages = Math.ceil(already_filtered.length / pageSize);
-   const safePage = Math.min(page, Math.max(totalPages, 1));
-   const start = (safePage - 1) * pageSize;
-   const visibles = already_filtered.slice(start, start + pageSize);
+   // Reseteamos la página a 1 si cambia la búsqueda o la categoría
+   useEffect(() => { setPage(1); }, [search, category, pageSize]);
 
-   useEffect(() => { setPage(1); }, [pageSize]);
-
+   const totalPages = Math.ceil(totalCount / pageSize);
 
    return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -64,37 +63,40 @@ export default function Catalog() {
                <Text style={styles.logoText}>Yatzari</Text>
             </View>
          </View>
-      {/*
-         <TouchableOpacity onPress={testConnection}>
-              <Text>Test</Text>
-         </TouchableOpacity>
-      */}
+
          <SearchBar
-            value={search} onChangeText={(texto) => {
-               setsearch(texto);
-               setPage(1);
-            }}
+            value={search} onChangeText={setSearch}
          />
          <FilterChips
             categories={categories}
             selected={category}
-            onSelect={(c) => { setCategory(c); setPage(1); }}
+            onSelect={setCategory}
          />
 
-         <FlatList
-            data={visibles}
-            numColumns={2}
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingHorizontal: 10 }}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={({ item }) => (
-               <ProductCard
-                  product={item}
-                  onAdded={() => handleProductAdded(item)}
-               />
-            )}
-         />
-         <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
+         {/* 👇 MOSTRAMOS LOADER MIENTRAS CARGA */}
+         {isLoading ? (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+               <ActivityIndicator size="large" color={colors.primaryDark} />
+            </View>
+         ) : (
+            <FlatList
+               data={products}
+               numColumns={2}
+               style={{ flex: 1 }}
+               contentContainerStyle={{ paddingHorizontal: 10 }}
+               keyExtractor={(item) => String(item.id)}
+               renderItem={({ item }) => (
+                  <ProductCard
+                     product={item}
+                     onAdded={() => handleProductAdded(item)}
+                  />
+               )}
+            />
+         )}
+
+         {!isLoading && (
+            <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+         )}
 
          <ToastCarrito visible={showToast} productName={lastAddedName} />
       </SafeAreaView>
@@ -102,41 +104,10 @@ export default function Catalog() {
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-   container: {
-      flex: 1,
-      backgroundColor: colors.background,
-   },
-   image: {
-      width: '100%',
-      height: '100%',
-      borderRadius: 20,
-   },
-   bar: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-   },
-   logo: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 10,
-   },
-   logoIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: colors.surface,
-      justifyContent: 'center',
-      alignItems: 'center',
-      overflow: 'hidden',
-   },
-   logoText: {
-      fontSize: 20,
-      fontWeight: '700',
-      color: colors.text,
-      letterSpacing: 1.5,
-      textTransform: 'uppercase',
-   },
+   container: { flex: 1, backgroundColor: colors.background },
+   image: { width: '100%', height: '100%', borderRadius: 20 },
+   bar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10 },
+   logo: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+   logoIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+   logoText: { fontSize: 20, fontWeight: '700', color: colors.text, letterSpacing: 1.5, textTransform: 'uppercase' },
 });

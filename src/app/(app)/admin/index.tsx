@@ -1,4 +1,5 @@
 import logo from '@/assets/images/joyeria/logo.jpeg';
+import { useEffect } from 'react';
 import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
 import { getImageSource } from '@/utils/images';
@@ -12,6 +13,9 @@ export default function AdminDashboard() {
   const { colors } = useSettings();
   const router = useRouter();
   const styles = createStyles(colors);
+  const { fetchProducts } = useProducts();
+
+  useEffect(() => { fetchProducts({ pageSize: 100 }); }, []);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
