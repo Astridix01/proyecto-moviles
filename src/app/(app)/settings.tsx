@@ -1,10 +1,9 @@
 import logo from '@/assets/images/joyeria/logo.jpeg';
 import { useSettings } from '@/hooks/useSettings';
-import { Moon, Sun } from 'lucide-react-native';
+import { usePathname, useRouter } from 'expo-router';
+import { ChevronLeft, Moon, Sun } from 'lucide-react-native';
 import { Image, Pressable, StyleSheet, Switch, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, usePathname } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 
 export default function Settings() {
   const { pageSize, setPageSize, theme, setTheme, colors } = useSettings();
@@ -31,15 +30,15 @@ export default function Settings() {
       <Text style={styles.settingsText}>Ajustes</Text>
 
       <View>
-        <Text style={styles.titleSection}>     Productos por página</Text>
+        <Text style={styles.titleSection}>     Producto por página</Text>
         <View style={styles.box}>
-          {[2, 4, 6, 8, 10].map((n) => (
+          {[5, 10, 15, 20, 25].map((n) => (
             <Pressable
               key={n}
               onPress={() => setPageSize(n)}
               style={[styles.options, n === pageSize && styles.activeOptions]}
             >
-              <Text style={{ color: n === pageSize ? colors.white : colors.text }}>
+              <Text style={{ color: n === pageSize ? colors.white : colors.text}}>
                 {n}
               </Text>
             </Pressable>
@@ -110,6 +109,8 @@ const createStyles = (colors: any) => StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     marginTop: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   switchBox: {
     justifyContent: 'space-between',

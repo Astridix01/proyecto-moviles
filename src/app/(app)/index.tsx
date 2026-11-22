@@ -7,15 +7,16 @@ import ToastCarrito from "@/components/ToastCarrito";
 import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
 import type { Product } from '@/types/product';
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 
 export default function Catalog() {
 
    const [search, setsearch] = useState("");
    const [page, setPage] = useState(1);
-   
+
    const { pageSize, colors } = useSettings();
    const { products } = useProducts();
    const styles = createStyles(colors);
@@ -44,9 +45,14 @@ export default function Catalog() {
       (category === "todos" || p.category === category) &&
       p.name.toLowerCase().includes(search.toLowerCase()));
 
-   const start = (page - 1) * pageSize;
-   const visibles = already_filtered.slice(start, start + pageSize);
+
    const totalPages = Math.ceil(already_filtered.length / pageSize);
+   const safePage = Math.min(page, Math.max(totalPages, 1));
+   const start = (safePage - 1) * pageSize;
+   const visibles = already_filtered.slice(start, start + pageSize);
+
+   useEffect(() => { setPage(1); }, [pageSize]);
+
 
    return (
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -78,14 +84,14 @@ export default function Catalog() {
             contentContainerStyle={{ paddingHorizontal: 10 }}
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item }) => (
-               <ProductCard 
-                  product={item} 
+               <ProductCard
+                  product={item}
                   onAdded={() => handleProductAdded(item)}
                />
             )}
          />
-         <Pagination page={page} totalPages={totalPages} onChange={setPage} />
-         
+         <Pagination page={safePage} totalPages={totalPages} onChange={setPage} />
+
          <ToastCarrito visible={showToast} productName={lastAddedName} />
       </SafeAreaView>
    );
@@ -99,7 +105,7 @@ const createStyles = (colors: any) => StyleSheet.create({
    image: {
       width: '100%',
       height: '100%',
-      borderRadius: 20, 
+      borderRadius: 20,
    },
    bar: {
       flexDirection: 'row',
@@ -120,7 +126,7 @@ const createStyles = (colors: any) => StyleSheet.create({
       backgroundColor: colors.surface,
       justifyContent: 'center',
       alignItems: 'center',
-      overflow: 'hidden', 
+      overflow: 'hidden',
    },
    logoText: {
       fontSize: 20,

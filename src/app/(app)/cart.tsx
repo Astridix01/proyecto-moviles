@@ -4,13 +4,19 @@ import { formatPrice } from '@/utils/formatPrice';
 import { getImageSource } from '@/utils/images';
 import { router } from 'expo-router';
 import {
-  Minus, Plus, ShoppingBag, Trash2, X, Check,
-  CreditCard, Banknote, Package, ShieldCheck,
+  Banknote,
+  Check,
+  CreditCard,
+  Minus,
+  Package,
+  Plus,
+  ShieldCheck,
+  ShoppingBag, Trash2, X,
 } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import {
   ActivityIndicator, Animated, FlatList, Image, Modal,
-  Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View,
+  ScrollView, StyleSheet, Text, TouchableOpacity, View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -298,15 +304,25 @@ export default function CartScreen() {
 }
 
 const createStyles = (colors: any) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  container: { 
+    flex: 1,
+    backgroundColor: colors.background 
+  },
   header: {
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: colors.surface,
   },
-  title: { fontSize: 24, fontWeight: 'bold', color: colors.text },
-  listContent: { padding: 20, paddingBottom: 20 },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text 
+  },
+  listContent: {
+    padding: 20,
+    paddingBottom: 20 
+  },
 
   cartItem: {
     flexDirection: 'row',
