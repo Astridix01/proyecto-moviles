@@ -10,6 +10,7 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
@@ -29,30 +30,18 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('Por favor, llena todos los campos');
+      Alert.alert('Campos vacíos', 'Por favor, llena todos los campos.');
       return;
     }
 
     setIsLoading(true);
     try {
-      setTimeout(() => {
-        setIsLoading(false);
-
-        const isAdmin = email.toLowerCase() === 'admin@yatzari.com';
-
-        login({
-          username: email.split('@')[0],
-          email: email,
-          first_name: isAdmin ? 'Admin' : 'Cliente',
-          last_name: 'Prueba',
-          role: isAdmin ? 'admin' : 'user',
-        });
-
-      }, 1500);
-      
-    } catch (error) {
+      await login(email, password);
+      // Si todo sale bien, RootLayout se encarga de redirigir
+    } catch (error: any) {
       setIsLoading(false);
-      alert('Error al iniciar sesión. Verifica tus datos.');
+      const msg = error.response?.data?.detail || 'Error al iniciar sesión. Verifica tus credenciales.';
+      Alert.alert('Error', msg);
     }
   };
 

@@ -30,9 +30,9 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth(); 
+  const { register } = useAuth(); 
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!firstName || !lastName || !username || !email || !password || !confirmPassword) {
       Alert.alert('Campos vacíos', 'Por favor, llena todos los campos.');
       return;
@@ -57,20 +57,23 @@ export default function Register() {
       password2: confirmPassword,
     };
 
-    console.log("PAYLOAD A ENVIAR:", payload);
-
     setIsLoading(true);
-    
-    setTimeout(() => {
+    try {
+      await register(payload);
+      // El AuthContext hace login automático, RootLayout redirige
+    } catch (error: any) {
       setIsLoading(false);
-      login({
-        username: username,
-        email: email,
-        first_name: firstName,
-        last_name: lastName,
-        role: 'user',
-      });
-    }, 1500);
+      // Manejo de errores del backend (ej. username ya existe, email inválido)
+      const errorData = error.response?.data;
+      let msg = 'Error al registrarse.';
+      if (errorData) {
+        // Si el backend devuelve un objeto con errores, mostramos el primero
+        const firstError = Object.values(errorData)[0];
+        if (Array.isArray(firstError)) msg = firstError[0];
+        else if (typeof firstError === 'string') msg = firstError;
+      }
+      Alert.alert('Error', msg);
+    }
   };
 
   return (

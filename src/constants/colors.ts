@@ -4,6 +4,7 @@ export const lightColors = {
   primary: '#FFFFFF',
   primaryDark: '#8985BC',
   background: '#F8F4EE',
+  backgroundDisabled: '#F0EDE7',
   surface: '#EFE9DE',
   surface2: '#E57373',
   text: '#453D33',

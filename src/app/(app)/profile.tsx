@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 // 👇 Agregamos LayoutDashboard a los imports
@@ -19,6 +19,7 @@ export default function Profile() {
   const [editLastName, setEditLastName] = useState('');
   const [editUsername, setEditUsername] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -37,9 +38,9 @@ export default function Profile() {
     setIsEditing(false);
   };
 
-  const saveChanges = () => {
-    if (!editFirstName.trim() || !editLastName.trim() || !editUsername.trim() || !editEmail.trim()) {
-      Alert.alert('Error', 'Todos los campos son obligatorios.');
+  const saveChanges = async () => {
+    if (!editFirstName.trim() || !editLastName.trim() || !editEmail.trim()) {
+      Alert.alert('Error', 'Los campos no pueden estar vacíos.');
       return;
     }
     if (!/\S+@\S+\.\S+/.test(editEmail.trim())) {
@@ -47,13 +48,19 @@ export default function Profile() {
       return;
     }
 
-    updateUser({
-      first_name: editFirstName.trim(),
-      last_name: editLastName.trim(),
-      username: editUsername.trim(),
-      email: editEmail.trim(),
-    });
-    setIsEditing(false);
+    setIsUpdating(true);
+    try {
+      await updateUser({
+        first_name: editFirstName.trim(),
+        last_name: editLastName.trim(),
+        email: editEmail.trim(),
+      });
+      setIsEditing(false);
+    } catch (error) {
+      Alert.alert('Error', 'No se pudieron guardar los cambios.');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   if (!user) {
@@ -111,12 +118,13 @@ export default function Profile() {
 
               <Text style={styles.inputLabel}>Usuario</Text>
               <TextInput
-                style={styles.input}
+                style={styles.inputDisabled}
                 value={editUsername}
                 onChangeText={setEditUsername}
                 autoCapitalize="none"
                 placeholder="usuario"
                 placeholderTextColor={colors.textSecondary}
+                editable={false}
               />
 
               <Text style={styles.inputLabel}>Correo electrónico</Text>
@@ -135,9 +143,14 @@ export default function Profile() {
                   <X color={colors.text} size={18} />
                   <Text style={styles.cancelBtnText}>Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.saveBtn} onPress={saveChanges}>
-                  <Check color={colors.white} size={18} />
-                  <Text style={styles.saveBtnText}>Guardar</Text>
+                <TouchableOpacity style={styles.saveBtn} onPress={saveChanges} disabled={isUpdating}>
+                  {isUpdating ? <ActivityIndicator color={colors.white} /> :
+                  (
+                    <>
+                      <Check color={colors.white} size={18} />
+                      <Text style={styles.saveBtnText}>Guardar</Text>
+                    </>
+                  )}
                 </TouchableOpacity>
               </View>
             </>
@@ -329,6 +342,15 @@ const createStyles = (colors: any) => StyleSheet.create({
   },
   input: {
     backgroundColor: colors.background,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: colors.text,
+    marginBottom: 16,
+  },
+  inputDisabled: {
+    backgroundColor: colors.backgroundDisabled,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
