@@ -357,6 +357,7 @@ const createStyles = (colors: any) => StyleSheet.create({
     fontSize: 15,
     color: colors.text,
     marginBottom: 16,
+    opacity: 0.7,
   },
   editActions: {
     flexDirection: 'row',

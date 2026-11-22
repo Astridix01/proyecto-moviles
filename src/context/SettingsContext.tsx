@@ -9,14 +9,14 @@ type SettingsContextData = {
   setPageSize: (n: number) => void;
   theme: Theme;
   setTheme: (t: Theme) => void;
-  colors: typeof lightColors; // 👈 colores activos
+  colors: typeof lightColors;
   isDark: boolean;
 };
 
 export const SettingsContext = createContext<SettingsContextData>({} as SettingsContextData);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [pageSize, setPageSize] = useState(6);
+  const [pageSize, setPageSize] = useState(5);
   const [theme, setTheme] = useState<Theme>('light');
 
   const isDark = theme === 'dark';

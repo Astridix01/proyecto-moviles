@@ -4,7 +4,7 @@ export const lightColors = {
   primary: '#FFFFFF',
   primaryDark: '#8985BC',
   background: '#F8F4EE',
-  backgroundDisabled: '#F0EDE7',
+  backgroundDisabled: '#A89F92',
   surface: '#EFE9DE',
   surface2: '#E57373',
   text: '#453D33',
@@ -25,6 +25,7 @@ export const darkColors = {
   primary: '#2A2740',        // tarjetas: lavanda muy oscuro
   primaryDark: '#B3AEDD',    // botones: lavanda claro (contraste)
   background: '#1A1826',     // fondo general: casi negro con tinte lavanda
+  backgroundDisabled: '#9E99B5',
   surface: '#2E2A4A',        // superficies: lavanda profundo
   surface2: '#E57373',
   text: '#F8F4EE',           // texto claro
