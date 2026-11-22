@@ -1,78 +1,109 @@
-import { Product } from '@/types/product';
-import { createContext, ReactNode, useMemo, useState } from 'react';
-
-export type CartItem = {
-  product: Product;
-  quantity: number;
-};
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import { cartService, CartItem } from '@/services/cartService';
+import { useAuth } from '@/hooks/useAuth';
+import type { Product } from '@/types/product';
 
 type CartContextData = {
   items: CartItem[];
-  addItem: (product: Product) => void;
-  removeItem: (productId: string | number) => void;
-  updateQuantity: (productId: string | number, quantity: number) => void;
-  clearCart: () => void;
+  isLoading: boolean;
   totalItems: number;
   totalPrice: number;
+  addItem: (product: Product) => Promise<void>;
+  updateQuantity: (itemId: number, quantity: number) => Promise<void>;
+  removeItem: (itemId: number) => Promise<void>;
+  clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
 };
 
 export const CartContext = createContext<CartContextData>({} as CartContextData);
 
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { isAuthenticated } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const addItem = (product: Product) => {
-    setItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.product.id === product.id);
-      if (existingItem) {
-        return currentItems.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...currentItems, { product, quantity: 1 }];
-    });
-  };
-
-  const removeItem = (productId: string | number) => {
-    setItems((currentItems) => currentItems.filter((item) => item.product.id !== productId));
-  };
-
-  const updateQuantity = (productId: string | number, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(productId);
-      return;
+  const refreshCart = async () => {
+    setIsLoading(true);
+    try {
+      const cart = await cartService.get();
+      setItems(cart.items);
+      setTotalItems(cart.totalItems);
+      setTotalPrice(parseFloat(cart.totalPrice) || 0);
+    } catch (error) {
+      console.error('Error cargando carrito:', error);
+    } finally {
+      setIsLoading(false);
     }
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    );
   };
 
-  const clearCart = () => setItems([]);
+  // Cargar carrito cuando el usuario se autentica; vaciar al cerrar sesión
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshCart();
+    } else {
+      setItems([]);
+      setTotalItems(0);
+      setTotalPrice(0);
+    }
+  }, [isAuthenticated]);
 
-  const totalItems = useMemo(() => items.reduce((sum, item) => sum + item.quantity, 0), [items]);
-  
-  const totalPrice = useMemo(() => {
-    return items.reduce((sum, item) => {
-      // Ojo: ajusta esto si tu Product usa 'price' en vez de 'precio'
-      const price = Number(item.product.price) || 0;
-      return sum + price * item.quantity;
-    }, 0);
-  }, [items]);
+  const addItem = async (product: Product) => {
+    try {
+      const cart = await cartService.addItem(product.id, 1);
+      setItems(cart.items);
+      setTotalItems(cart.totalItems);
+      setTotalPrice(parseFloat(cart.totalPrice) || 0);
+    } catch (error) {
+      console.error('Error agregando al carrito:', error);
+      throw error;
+    }
+  };
+
+  const updateQuantity = async (itemId: number, quantity: number) => {
+    try {
+      const cart = await cartService.updateItem(itemId, quantity);
+      setItems(cart.items);
+      setTotalItems(cart.totalItems);
+      setTotalPrice(parseFloat(cart.totalPrice) || 0);
+    } catch (error) {
+      console.error('Error actualizando cantidad:', error);
+    }
+  };
+
+  const removeItem = async (itemId: number) => {
+    try {
+      await cartService.removeItem(itemId);
+      await refreshCart();
+    } catch (error) {
+      console.error('Error eliminando item:', error);
+    }
+  };
+
+  const clearCart = async () => {
+    try {
+      await cartService.clear();
+      setItems([]);
+      setTotalItems(0);
+      setTotalPrice(0);
+    } catch (error) {
+      console.error('Error vaciando carrito:', error);
+    }
+  };
 
   return (
-    <CartContext.Provider 
-      value={{ 
-        items, 
-        addItem, 
-        removeItem, 
-        updateQuantity, 
-        clearCart, 
-        totalItems, 
-        totalPrice 
+    <CartContext.Provider
+      value={{
+        items,
+        isLoading,
+        totalItems,
+        totalPrice,
+        addItem,
+        updateQuantity,
+        removeItem,
+        clearCart,
+        refreshCart,
       }}
     >
       {children}

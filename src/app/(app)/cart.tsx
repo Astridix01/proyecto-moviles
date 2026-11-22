@@ -64,9 +64,9 @@ export default function CartScreen() {
     }, 1800);
   };
 
-  const handleCloseCheckout = () => {
+  const handleCloseCheckout = async () => {
     if (step === 'success') {
-      clearCart();
+      await clearCart();
       setShowCheckout(false);
       setStep('confirm');
       scaleAnim.setValue(0);
@@ -113,20 +113,20 @@ export default function CartScreen() {
               <View style={styles.quantityContainer}>
                 <TouchableOpacity
                   style={styles.qtyButton}
-                  onPress={() => updateQuantity(item.product.id, item.quantity - 1)}
+                  onPress={() => updateQuantity(item.id, item.quantity - 1)}
                 >
                   <Minus color={colors.text} size={16} />
                 </TouchableOpacity>
                 <Text style={styles.qtyText}>{item.quantity}</Text>
                 <TouchableOpacity
                   style={styles.qtyButton}
-                  onPress={() => updateQuantity(item.product.id, item.quantity + 1)}
+                  onPress={() => updateQuantity(item.id, item.quantity + 1)}
                 >
                   <Plus color={colors.text} size={16} />
                 </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.product.id)}>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.id)}>
               <Trash2 color={colors.error} size={20} />
             </TouchableOpacity>
           </View>
