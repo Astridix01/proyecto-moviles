@@ -40,7 +40,14 @@ export default function Login() {
       // Si todo sale bien, RootLayout se encarga de redirigir
     } catch (error: any) {
       setIsLoading(false);
-      const msg = error.response?.data?.detail || 'Error al iniciar sesión. Verifica tus credenciales.';
+      const msg =
+        error.response?.data?.detail ||
+        error.response?.data?.non_field_errors?.[0] ||
+        (error.code === 'ECONNABORTED'
+          ? 'El servidor no responde. Intenta de nuevo.'
+          : !error.response
+            ? 'No se pudo conectar con el servidor. Revisa tu conexión.'
+            : 'Error al iniciar sesión.');
       Alert.alert('Error', msg);
     }
   };

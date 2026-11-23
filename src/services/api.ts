@@ -2,8 +2,12 @@ import axios from 'axios';
 import { API_URL } from '@/constants/config';
 import { storage } from '@/utils/storage';
 
+let onAuthFailure: (() => void) | null = null;
+export const setOnAuthFailure = (cb: () => void) => { onAuthFailure = cb; };
+
 export const api = axios.create({
   baseURL: API_URL,
+  timeout: 15000,
 });
 
 api.interceptors.request.use(async (config) => {
@@ -55,7 +59,7 @@ api.interceptors.response.use(
         const refresh = await storage.getRefresh();
         if (!refresh) throw new Error('No refresh token available');
 
-        const { data } = await axios.post(`${API_URL}/auth/refresh/`, { refresh });
+        const { data } = await axios.post(`${API_URL}/auth/refresh/`, { refresh }, { timeout: 15000 });
         const newAccess = data.access;
 
         await storage.saveTokens(newAccess, refresh);
@@ -65,10 +69,12 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        await storage.clearTokens();
+        try { await storage.clearTokens(); } catch { }
+        onAuthFailure?.();  
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
+        if (failedQueue.length) processQueue(new Error('refresh aborted'), null);
       }
     }
 

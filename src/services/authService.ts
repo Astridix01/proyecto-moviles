@@ -4,7 +4,7 @@ import type { UserProfile } from '@/context/AuthContext';
 export const authService = {
   login: async (email: string, password: string) => {
     const response = await api.post('/auth/login/', { email, password });
-    return response.data; // { access, refresh, user }
+    return response.data;
   },
 
   register: async (payload: any) => {

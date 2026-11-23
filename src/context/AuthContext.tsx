@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
 import { authService } from '@/services/authService';
 import { storage } from '@/utils/storage';
+import { setOnAuthFailure } from '@/services/api';
 
 export type UserProfile = {
   id?: number;
@@ -28,7 +29,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<UserProfile | null>(null);
 
-  // Recuperar sesión al abrir la app
+  // 1) Registrar callback que el interceptor de api.ts invocará cuando
+  //    el refresh token falle (backend caído, refresh revocado, etc.).
+  useEffect(() => {
+    setOnAuthFailure(() => {
+      setUser(null);
+      setIsAuthenticated(false);
+    });
+    return () => setOnAuthFailure(null);
+  }, []);
+
+  // 2) Recuperar sesión al abrir la app
   useEffect(() => {
     const loadSession = async () => {
       try {
@@ -58,7 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (payload: any) => {
     await authService.register(payload);
-    // Auto-login después del registro
     await login(payload.email, payload.password);
   };
 
