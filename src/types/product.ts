@@ -1,5 +1,11 @@
 import type { ImageSourcePropType } from 'react-native';
 
+export type ProductImageInfo = {
+  id: number;
+  url: string;
+  position: number;
+};
+
 export type Product = {
   id: number;
   name: string;
@@ -8,5 +14,6 @@ export type Product = {
   category: string;
   material: string;
   images: (ImageSourcePropType | string)[];
+  imagesInfo?: ProductImageInfo[];
   active: boolean;
 };

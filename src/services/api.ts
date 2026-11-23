@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { API_URL } from '@/constants/config';
 import { storage } from '@/utils/storage';
+import axios from 'axios';
 
 let onAuthFailure: (() => void) | null = null;
-export const setOnAuthFailure = (cb: () => void) => { onAuthFailure = cb; };
+export const setOnAuthFailure = (cb: (() => void) | null) => { onAuthFailure = cb; };
 
 export const api = axios.create({
   baseURL: API_URL,

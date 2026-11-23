@@ -6,18 +6,20 @@ import { useRouter } from 'expo-router';
 import ProductForm from '@/components/ProductForm';
 import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
+import type { ProductFormData } from '@/services/productService';
 
 export default function NewProduct() {
-  const { addProduct } = useProducts();
+  const { addProduct, fetchProducts } = useProducts();
   const { colors } = useSettings();
   const router = useRouter();
   const styles = createStyles(colors);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: ProductFormData) => {
     setIsSaving(true);
     try {
       await addProduct(data);
+      await fetchProducts({ pageSize: 100 });
       Alert.alert('Éxito', 'Producto creado correctamente');
       router.back();
     } finally {

@@ -1,5 +1,6 @@
 import { api } from './api';
-import type { Product } from '@/types/product';
+import type { ImagePickerAsset } from 'expo-image-picker';
+import type { Product, ProductImageInfo } from '@/types/product';
 
 type ApiProduct = {
   id: number;
@@ -9,62 +10,70 @@ type ApiProduct = {
   categoria: string;
   material: string;
   imagenes: string[];
+  imagenes_info?: ProductImageInfo[];
   activo: boolean;
 };
 
-type ProductPayload = {
+export type GalleryItem =
+  | { kind: 'existing'; info: ProductImageInfo }
+  | { kind: 'new'; asset: ImagePickerAsset };
+
+export type ProductFormData = {
   name: string;
   price: string;
   description: string;
   category: string;
   material: string;
-  imageUri: string | null;
+  gallery: GalleryItem[];
+  deletedIds: number[];
 };
 
-export const mapProduct = (apiProduct: ApiProduct): Product => ({
-  id: apiProduct.id,
-  name: apiProduct.nombre,
-  price: apiProduct.precio,
-  description: apiProduct.descripcion,
-  category: apiProduct.categoria,
-  material: apiProduct.material,
-  images: apiProduct.imagenes,
-  active: apiProduct.activo,
+export const mapProduct = (p: ApiProduct): Product => ({
+  id: p.id,
+  name: p.nombre,
+  price: p.precio,
+  description: p.descripcion,
+  category: p.categoria,
+  material: p.material,
+  images: p.imagenes,
+  imagesInfo: p.imagenes_info,
+  active: p.activo,
 });
 
-const isLocalFile = (uri: string) =>
-  uri.startsWith('file://') || uri.startsWith('content://') || uri.startsWith('ph://');
+const toFormFile = (asset: ImagePickerAsset) => {
+  const name = asset.fileName ?? `image-${Date.now()}.jpg`;
+  const match = /\.(\w+)$/.exec(name);
+  const type = asset.mimeType ?? (match ? `image/${match[1]}` : 'image/jpeg');
+  return { uri: asset.uri, name, type } as any;
+};
 
-const buildFormData = (data: ProductPayload): FormData => {
-  const formData = new FormData();
-  formData.append('nombre', data.name);
-  formData.append('precio', data.price);
-  formData.append('descripcion', data.description);
-  formData.append('categoria', data.category);
-  formData.append('material', data.material);
+const extractNew = (gallery: GalleryItem[]): ImagePickerAsset[] =>
+  gallery
+    .filter((g): g is Extract<GalleryItem, { kind: 'new' }> => g.kind === 'new')
+    .map((g) => g.asset);
 
-  // Solo enviamos imagen si es un archivo local (el usuario eligió una nueva)
-  if (data.imageUri && isLocalFile(data.imageUri)) {
-    const filename = data.imageUri.split('/').pop() || 'image.jpg';
-    const match = /\.(\w+)$/.exec(filename);
-    const type = match ? `image/${match[1]}` : 'image/jpeg';
-
-    formData.append('imagen', {
-      uri: data.imageUri,
-      name: filename,
-      type,
-    } as any);
-  }
-
-  return formData;
+const buildMetadataFormData = (p: ProductFormData): FormData => {
+  const fd = new FormData();
+  fd.append('nombre', p.name);
+  fd.append('precio', p.price);
+  fd.append('descripcion', p.description);
+  fd.append('categoria', p.category);
+  fd.append('material', p.material);
+  return fd;
 };
 
 export const productService = {
-  getAll: async (params: { page?: number; pageSize?: number; search?: string; category?: string }) => {
+  getAll: async (params: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    category?: string;
+  }) => {
     const queryParams: any = { page: params.page, page_size: params.pageSize };
     if (params.search) queryParams.search = params.search;
-    if (params.category && params.category !== 'todos') queryParams.category = params.category;
-
+    if (params.category && params.category !== 'todos') {
+      queryParams.category = params.category;
+    }
     const response = await api.get('/products/', { params: queryParams });
     return {
       results: response.data.results.map(mapProduct),
@@ -72,25 +81,82 @@ export const productService = {
     };
   },
 
-  getById: async (id: number) => {
+  getById: async (id: number): Promise<Product> => {
     const response = await api.get(`/products/${id}/`);
     return mapProduct(response.data);
   },
 
-  create: async (data: ProductPayload): Promise<Product> => {
-    const formData = buildFormData(data);
-    const response = await api.post('/products/', formData, {
+  create: async (payload: ProductFormData): Promise<Product> => {
+    const fd = buildMetadataFormData(payload);
+    extractNew(payload.gallery).forEach((asset) =>
+      fd.append('imagenes', toFormFile(asset))
+    );
+    const response = await api.post('/products/', fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return mapProduct(response.data);
   },
 
-  update: async (id: number, data: ProductPayload): Promise<Product> => {
-    const formData = buildFormData(data);
-    const response = await api.put(`/products/${id}/`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+  update: async (id: number, payload: ProductFormData): Promise<Product> => {
+    // 1) Borrar las imágenes marcadas
+    if (payload.deletedIds.length > 0) {
+      await Promise.all(
+        payload.deletedIds.map((imgId) =>
+          api.delete(`/products/${id}/images/${imgId}/`)
+        )
+      );
+    }
+
+    // 2) Añadir las nuevas
+    if (extractNew(payload.gallery).length > 0) {
+      const fd = new FormData();
+      extractNew(payload.gallery).forEach((asset) =>
+        fd.append('imagenes', toFormFile(asset))
+      );
+      await api.post(`/products/${id}/images/`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    }
+
+    // 3) Reordenar si es necesario
+    const fresh = await api.get(`/products/${id}/`);
+    const currentInfo: ProductImageInfo[] = fresh.data.imagenes_info ?? [];
+
+    const existingIdsInGallery = new Set(
+      payload.gallery
+        .filter((g): g is Extract<GalleryItem, { kind: 'existing' }> =>
+          g.kind === 'existing'
+        )
+        .map((g) => g.info.id)
+    );
+
+    const newIds = currentInfo
+      .map((i) => i.id)
+      .filter((iid) => !existingIdsInGallery.has(iid));
+
+    let newIdx = 0;
+    const desiredOrder = payload.gallery.map((g) => {
+      if (g.kind === 'existing') return g.info.id;
+      return newIds[newIdx++];
     });
-    return mapProduct(response.data);
+
+    const currentOrder = currentInfo.map((i) => i.id);
+    if (JSON.stringify(currentOrder) !== JSON.stringify(desiredOrder)) {
+      await api.put(`/products/${id}/images/order/`, { order: desiredOrder });
+    }
+
+    // 4) Actualizar metadata (JSON, sin tocar imágenes)
+    await api.patch(`/products/${id}/`, {
+      nombre: payload.name,
+      precio: payload.price,
+      descripcion: payload.description,
+      categoria: payload.category,
+      material: payload.material,
+    });
+
+    // 5) Devolver la versión final
+    const final = await api.get(`/products/${id}/`);
+    return mapProduct(final.data);
   },
 
   remove: async (id: number): Promise<void> => {

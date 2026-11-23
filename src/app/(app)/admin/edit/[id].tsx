@@ -6,16 +6,17 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import ProductForm from '@/components/ProductForm';
 import { useProducts } from '@/hooks/useProducts';
 import { useSettings } from '@/hooks/useSettings';
+import type { ProductFormData } from '@/services/productService';
 
 export default function EditProduct() {
   const { id } = useLocalSearchParams();
-  const { products, updateProduct } = useProducts();
+  const { products, updateProduct, fetchProducts } = useProducts();
   const { colors } = useSettings();
   const router = useRouter();
   const styles = createStyles(colors);
   const [isSaving, setIsSaving] = useState(false);
 
-  const productToEdit = products.find(p => p.id === Number(id));
+  const productToEdit = products.find((p) => p.id === Number(id));
 
   if (!productToEdit) {
     return (
@@ -30,10 +31,11 @@ export default function EditProduct() {
     );
   }
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: ProductFormData) => {
     setIsSaving(true);
     try {
       await updateProduct(productToEdit.id, data);
+      await fetchProducts({ pageSize: 100 });
       Alert.alert('Éxito', 'Producto actualizado correctamente');
       router.back();
     } finally {
